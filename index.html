@@ -4,318 +4,284 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Elie3MDigital - Administration</title>
 
 <style>
 *{box-sizing:border-box}
 
 body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#f4f6f8;
-color:#222
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f4f6f8;
+    color:#222
 }
 
-button,input,select,textarea{
-font:inherit
-}
-
-button{
-cursor:pointer
-}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
 
 #loginPage{
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:20px
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px
 }
 
 .login-box{
-width:100%;
-max-width:420px;
-background:#fff;
-padding:30px;
-border-radius:16px;
-box-shadow:0 8px 30px #0002
+    width:100%;
+    max-width:420px;
+    background:#fff;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 8px 30px #0002
 }
 
-.login-box h1{
-text-align:center;
-margin-top:0
-}
+.login-box h1{text-align:center}
 
-.field{
-margin-bottom:15px
-}
+.field{margin-bottom:15px}
 
 .field label{
-display:block;
-margin-bottom:6px;
-font-weight:bold
+    display:block;
+    margin-bottom:6px;
+    font-weight:bold
 }
 
 .field input,
 .field select,
 .field textarea{
-width:100%;
-padding:12px;
-border:1px solid #ccc;
-border-radius:8px;
-background:#fff
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    background:#fff
 }
 
 .primary{
-width:100%;
-padding:13px;
-border:0;
-border-radius:8px;
-background:#2563eb;
-color:#fff;
-font-weight:bold
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:8px;
+    background:#2563eb;
+    color:#fff;
+    font-weight:bold
 }
 
 #loginMessage{
-text-align:center;
-margin-top:15px;
-min-height:20px
+    text-align:center;
+    margin-top:15px
 }
 
 #application{
-display:none;
-min-height:100vh
+    display:none;
+    min-height:100vh
 }
 
 header{
-background:#111827;
-color:#fff;
-padding:18px 20px;
-display:flex;
-justify-content:space-between;
-align-items:center
+    background:#111827;
+    color:#fff;
+    padding:18px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px
 }
 
 header h1{
-margin:0;
-font-size:20px
+    margin:0;
+    font-size:20px
 }
 
 .logout{
-background:#dc2626;
-color:#fff;
-border:0;
-padding:9px 14px;
-border-radius:7px
+    background:#dc2626;
+    color:#fff;
+    border:0;
+    padding:9px 14px;
+    border-radius:7px
 }
 
 .layout{
-display:flex;
-min-height:calc(100vh - 65px)
+    display:flex;
+    min-height:calc(100vh - 65px)
 }
 
 nav{
-width:220px;
-background:#fff;
-border-right:1px solid #ddd;
-padding:15px
+    width:220px;
+    background:#fff;
+    border-right:1px solid #ddd;
+    padding:15px
 }
 
 nav button{
-width:100%;
-padding:12px;
-margin-bottom:8px;
-border:0;
-border-radius:8px;
-background:#f1f5f9;
-text-align:left
+    width:100%;
+    padding:12px;
+    margin-bottom:8px;
+    border:0;
+    border-radius:8px;
+    background:#f1f5f9;
+    text-align:left
 }
 
-nav button:hover{
-background:#e2e8f0
-}
+nav button:hover{background:#e2e8f0}
 
 main{
-flex:1;
-padding:25px
+    flex:1;
+    padding:25px;
+    min-width:0
 }
 
-.page{
-display:none
-}
-
-.page.active{
-display:block
-}
+.page{display:none}
+.page.active{display:block}
 
 .top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:20px
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px
 }
 
 .add{
-background:#16a34a;
-color:#fff;
-border:0;
-padding:11px 16px;
-border-radius:8px
+    background:#16a34a;
+    color:#fff;
+    border:0;
+    padding:11px 16px;
+    border-radius:8px
 }
 
 .search{
-width:100%;
-max-width:450px;
-padding:12px;
-border:1px solid #ccc;
-border-radius:8px;
-margin-bottom:20px
+    width:100%;
+    max-width:450px;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    margin-bottom:20px
 }
 
 .cards{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
-gap:16px
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+    gap:16px
 }
 
 .card{
-background:#fff;
-border-radius:12px;
-padding:18px;
-box-shadow:0 2px 10px #0001
+    background:#fff;
+    border-radius:12px;
+    padding:18px;
+    box-shadow:0 2px 10px #0001
 }
 
-.card h3{
-margin-top:0
-}
+.card h3{margin-top:0}
 
-.card p{
-word-break:break-word
-}
+.card p{word-break:break-word}
 
 .actions{
-display:flex;
-gap:8px;
-margin-top:15px;
-flex-wrap:wrap
+    display:flex;
+    gap:8px;
+    margin-top:15px;
+    flex-wrap:wrap
 }
 
-.edit,
-.delete{
-border:0;
-padding:9px 12px;
-border-radius:7px;
-color:#fff
+.edit,.delete{
+    border:0;
+    padding:9px 12px;
+    border-radius:7px;
+    color:#fff
 }
 
-.edit{
-background:#f59e0b
-}
-
-.delete{
-background:#dc2626
-}
+.edit{background:#f59e0b}
+.delete{background:#dc2626}
 
 .empty{
-background:#fff;
-padding:25px;
-border-radius:10px
-}
-
-.modal{
-display:none;
-position:fixed;
-inset:0;
-background:#0008;
-align-items:center;
-justify-content:center;
-padding:20px;
-z-index:1000
-}
-
-.modal.active{
-display:flex
-}
-
-.modal-box{
-width:100%;
-max-width:560px;
-background:#fff;
-border-radius:14px;
-padding:25px;
-max-height:90vh;
-overflow:auto
-}
-
-.modal-actions{
-display:flex;
-gap:10px;
-margin-top:15px
-}
-
-.modal-actions button{
-flex:1;
-padding:11px;
-border:0;
-border-radius:8px
-}
-
-.save{
-background:#2563eb;
-color:#fff
-}
-
-.cancel{
-background:#e5e7eb
-}
-
-.message{
-margin-top:10px;
-padding:10px;
-border-radius:7px
+    background:#fff;
+    padding:25px;
+    border-radius:10px
 }
 
 .stat{
-font-size:28px;
-font-weight:bold
+    font-size:28px;
+    font-weight:bold
 }
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#0008;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000
+}
+
+.modal.active{display:flex}
+
+.modal-box{
+    width:100%;
+    max-width:520px;
+    background:#fff;
+    border-radius:14px;
+    padding:25px;
+    max-height:90vh;
+    overflow:auto
+}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:15px
+}
+
+.modal-actions button{
+    flex:1;
+    padding:11px;
+    border:0;
+    border-radius:8px
+}
+
+.save{
+    background:#2563eb;
+    color:#fff
+}
+
+.cancel{background:#e5e7eb}
+
+.message{
+    margin-top:10px;
+    text-align:center
+}
+
+.hidden{display:none!important}
 
 @media(max-width:700px){
 
-.layout{
-display:block
-}
+    .layout{display:block}
 
-nav{
-width:100%;
-display:flex;
-overflow-x:auto;
-gap:8px;
-border-right:0;
-border-bottom:1px solid #ddd
-}
+    nav{
+        width:100%;
+        display:flex;
+        overflow-x:auto;
+        gap:8px;
+        border-right:0;
+        border-bottom:1px solid #ddd
+    }
 
-nav button{
-min-width:120px;
-text-align:center;
-margin:0
-}
+    nav button{
+        min-width:120px;
+        text-align:center;
+        margin:0
+    }
 
-main{
-padding:15px
-}
+    main{padding:15px}
 
-header h1{
-font-size:16px
-}
+    header h1{font-size:17px}
 }
 </style>
 </head>
 
 <body>
+
+<!-- CONNEXION -->
 
 <section id="loginPage">
 
@@ -323,36 +289,21 @@ font-size:16px
 
 <h1>Elie3MDigital</h1>
 
-<p style="text-align:center">
-Administration
-</p>
+<p style="text-align:center">Administration</p>
 
 <form id="loginForm">
 
 <div class="field">
 <label for="email">E-mail</label>
-<input
-id="email"
-type="email"
-autocomplete="email"
-required
->
+<input id="email" type="email" autocomplete="username" required>
 </div>
 
 <div class="field">
 <label for="password">Mot de passe</label>
-<input
-id="password"
-type="password"
-autocomplete="current-password"
-required
->
+<input id="password" type="password" autocomplete="current-password" required>
 </div>
 
-<button
-class="primary"
-type="submit"
->
+<button class="primary" type="submit">
 Se connecter
 </button>
 
@@ -365,62 +316,37 @@ Se connecter
 </section>
 
 
+<!-- APPLICATION -->
+
 <section id="application">
 
 <header>
 
-<h1>
-Elie3MDigital - Administration
-</h1>
+<h1>Elie3MDigital - Administration</h1>
 
-<button
-id="logout"
-class="logout"
->
+<button id="logout" class="logout">
 Déconnexion
 </button>
 
 </header>
 
-
 <div class="layout">
 
 <nav>
 
-<button onclick="showPage('dashboard')">
-🏠 Accueil
-</button>
-
-<button onclick="showPage('clients')">
-👥 Clients
-</button>
-
-<button onclick="showPage('services')">
-🛠️ Services
-</button>
-
-<button onclick="showPage('interventions')">
-📋 Interventions
-</button>
-
-<button onclick="showPage('factures')">
-🧾 Factures
-</button>
-
-<button onclick="showPage('paiements')">
-💳 Paiements
-</button>
+<button onclick="showPage('dashboard')">🏠 Accueil</button>
+<button onclick="showPage('clients')">👥 Clients</button>
+<button onclick="showPage('services')">🛠️ Services</button>
+<button onclick="showPage('factures')">🧾 Factures</button>
+<button onclick="showPage('paiements')">💳 Paiements</button>
 
 </nav>
 
-
 <main>
 
+<!-- ACCUEIL -->
 
-<section
-id="dashboard"
-class="page active"
->
+<section id="dashboard" class="page active">
 
 <h2>Tableau de bord</h2>
 
@@ -428,42 +354,26 @@ class="page active"
 
 <div class="card">
 <h3>Clients</h3>
-<div
-id="clientCount"
-class="stat"
->
-0
-</div>
+<p class="stat" id="clientCount">0</p>
+<p>client(s)</p>
 </div>
 
 <div class="card">
 <h3>Services</h3>
-<div
-id="serviceCount"
-class="stat"
->
-0
-</div>
-</div>
-
-<div class="card">
-<h3>Interventions</h3>
-<div
-id="interventionCount"
-class="stat"
->
-0
-</div>
+<p class="stat" id="serviceCount">0</p>
+<p>service(s)</p>
 </div>
 
 <div class="card">
 <h3>Factures</h3>
-<div
-id="factureCount"
-class="stat"
->
-0
+<p class="stat" id="factureCount">0</p>
+<p>facture(s)</p>
 </div>
+
+<div class="card">
+<h3>Paiements</h3>
+<p class="stat" id="paiementCount">0</p>
+<p>paiement(s)</p>
 </div>
 
 </div>
@@ -471,19 +381,15 @@ class="stat"
 </section>
 
 
-<section
-id="clients"
-class="page"
->
+<!-- CLIENTS -->
+
+<section id="clients" class="page">
 
 <div class="top">
 
 <h2>Clients</h2>
 
-<button
-class="add"
-onclick="openClientForm()"
->
+<button class="add" onclick="openClientForm()">
 + Ajouter client
 </button>
 
@@ -497,238 +403,153 @@ placeholder="Rechercher un client..."
 oninput="searchClients()"
 >
 
-<div
-id="clientsList"
-class="cards"
->
-<div class="empty">
-Chargement des clients...
-</div>
+<div id="clientsList" class="cards">
+<div class="empty">Chargement des clients...</div>
 </div>
 
 </section>
 
 
-<section
-id="services"
-class="page"
->
+<!-- SERVICES -->
+
+<section id="services" class="page">
 
 <div class="top">
 
 <h2>Services</h2>
 
-<button
-class="add"
-onclick="openServiceForm()"
->
+<button class="add" onclick="openServiceForm()">
 + Ajouter service
 </button>
 
 </div>
 
-<div
-id="servicesList"
-class="cards"
->
-<div class="empty">
-Chargement des services...
-</div>
+<div id="servicesList" class="cards">
+<div class="empty">Chargement des services...</div>
 </div>
 
 </section>
 
 
-<section
-id="interventions"
-class="page"
->
+<!-- FACTURES -->
 
-<div class="top">
-
-<h2>Interventions</h2>
-
-<button
-class="add"
-onclick="openInterventionForm()"
->
-+ Ajouter intervention
-</button>
-
-</div>
-
-<div
-id="interventionsList"
-class="cards"
->
-<div class="empty">
-Chargement des interventions...
-</div>
-</div>
-
-</section>
-
-
-<section
-id="factures"
-class="page"
->
+<section id="factures" class="page">
 
 <div class="top">
 
 <h2>Factures</h2>
 
-<button
-class="add"
-onclick="openFactureForm()"
->
+<button class="add" onclick="openFactureForm()">
 + Ajouter facture
 </button>
 
 </div>
 
-<div
-id="facturesList"
-class="cards"
->
-<div class="empty">
-Chargement des factures...
-</div>
+<div id="facturesList" class="cards">
+<div class="empty">Chargement des factures...</div>
 </div>
 
 </section>
 
 
-<section
-id="paiements"
-class="page"
->
+<!-- PAIEMENTS -->
+
+<section id="paiements" class="page">
 
 <div class="top">
 
 <h2>Paiements</h2>
 
-<button
-class="add"
-onclick="openPaiementForm()"
->
+<button class="add" onclick="openPaiementForm()">
 + Ajouter paiement
 </button>
 
 </div>
 
-<div
-id="paiementsList"
-class="cards"
->
-<div class="empty">
-Chargement des paiements...
-</div>
+<div id="paiementsList" class="cards">
+<div class="empty">Chargement des paiements...</div>
 </div>
 
 </section>
 
 </main>
-
 </div>
-
 </section>
 
 
-<!-- CLIENT -->
+<!-- MODALE CLIENT -->
 
-<div
-id="clientModal"
-class="modal"
->
+<div id="clientModal" class="modal">
 
 <div class="modal-box">
 
-<h2 id="clientModalTitle">
-Ajouter un client
-</h2>
+<h2 id="clientModalTitle">Ajouter un client</h2>
 
-<input
-id="clientId"
-type="hidden"
->
+<input id="clientId" type="hidden">
 
 <div class="field">
-<label>Nom</label>
+<label for="clientNom">Nom</label>
 <input id="clientNom" type="text">
 </div>
 
 <div class="field">
-<label>Téléphone</label>
+<label for="clientTelephone">Téléphone</label>
 <input id="clientTelephone" type="text">
 </div>
 
 <div class="field">
-<label>E-mail</label>
+<label for="clientEmail">E-mail</label>
 <input id="clientEmail" type="email">
 </div>
 
 <div class="field">
-<label>Adresse</label>
+<label for="clientAdresse">Adresse</label>
 <input id="clientAdresse" type="text">
 </div>
 
 <div class="field">
-<label>Entreprise</label>
+<label for="clientEntreprise">Entreprise</label>
 <input id="clientEntreprise" type="text">
 </div>
 
-<div
-id="clientMessage"
-class="message"
-></div>
+<div id="clientMessage" class="message"></div>
 
 <div class="modal-actions">
 
-<button
-class="save"
-onclick="saveClient()"
->
+<button class="save" onclick="saveClient()">
 Enregistrer
 </button>
 
-<button
-class="cancel"
-onclick="closeModal('clientModal')"
->
+<button class="cancel" onclick="closeModal('clientModal')">
 Annuler
 </button>
 
 </div>
 
 </div>
-
 </div>
 
 
-<!-- SERVICE -->
+<!-- MODALE SERVICE -->
 
-<div
-id="serviceModal"
-class="modal"
->
+<div id="serviceModal" class="modal">
 
 <div class="modal-box">
 
 <h2>Ajouter un service</h2>
 
 <div class="field">
-<label>Nom</label>
+<label for="serviceNom">Nom</label>
 <input id="serviceNom" type="text">
 </div>
 
 <div class="field">
-<label>Description</label>
-<textarea id="serviceDescription"></textarea>
+<label for="serviceDescription">Description</label>
+<textarea id="serviceDescription" rows="4"></textarea>
 </div>
 
 <div class="field">
-<label>Prix</label>
+<label for="servicePrix">Prix</label>
 <input id="servicePrix" type="number" step="0.01">
 </div>
 
@@ -736,136 +557,60 @@ class="modal"
 
 <div class="modal-actions">
 
-<button
-class="save"
-onclick="saveService()"
->
+<button class="save" onclick="saveService()">
 Enregistrer
 </button>
 
-<button
-class="cancel"
-onclick="closeModal('serviceModal')"
->
+<button class="cancel" onclick="closeModal('serviceModal')">
 Annuler
 </button>
 
 </div>
 
 </div>
-
 </div>
 
 
-<!-- INTERVENTION -->
+<!-- MODALE FACTURE -->
 
-<div
-id="interventionModal"
-class="modal"
->
-
-<div class="modal-box">
-
-<h2>Ajouter une intervention</h2>
-
-<div class="field">
-<label>Client</label>
-<select id="interventionClient"></select>
-</div>
-
-<div class="field">
-<label>Service</label>
-<select id="interventionService"></select>
-</div>
-
-<div class="field">
-<label>Date</label>
-<input id="interventionDate" type="date">
-</div>
-
-<div class="field">
-<label>Description</label>
-<textarea id="interventionDescription"></textarea>
-</div>
-
-<div class="field">
-<label>Statut</label>
-<select id="interventionStatut">
-<option>En attente</option>
-<option>En cours</option>
-<option>Terminée</option>
-<option>Annulée</option>
-</select>
-</div>
-
-<div id="interventionMessage" class="message"></div>
-
-<div class="modal-actions">
-
-<button
-class="save"
-onclick="saveIntervention()"
->
-Enregistrer
-</button>
-
-<button
-class="cancel"
-onclick="closeModal('interventionModal')"
->
-Annuler
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- FACTURE -->
-
-<div
-id="factureModal"
-class="modal"
->
+<div id="factureModal" class="modal">
 
 <div class="modal-box">
 
 <h2>Ajouter une facture</h2>
 
 <div class="field">
-<label>Client</label>
+<label for="factureClient">Client</label>
 <select id="factureClient"></select>
 </div>
 
 <div class="field">
-<label>Numéro</label>
+<label for="factureNumero">Numéro</label>
 <input id="factureNumero" type="text">
 </div>
 
 <div class="field">
-<label>Montant</label>
+<label for="factureMontant">Montant</label>
 <input id="factureMontant" type="number" step="0.01">
 </div>
 
 <div class="field">
-<label>Statut</label>
+<label for="factureStatut">Statut</label>
 <select id="factureStatut">
-<option>Impayée</option>
-<option>Payée</option>
-<option>Partiellement payée</option>
-<option>Annulée</option>
+<option value="En attente">En attente</option>
+<option value="Payée">Payée</option>
+<option value="Partiellement payée">Partiellement payée</option>
+<option value="Annulée">Annulée</option>
 </select>
 </div>
 
 <div class="field">
-<label>Date</label>
+<label for="factureDate">Date de facture</label>
 <input id="factureDate" type="date">
 </div>
 
 <div class="field">
-<label>Date d'échéance</label>
+<label for="factureEcheance">Date d'échéance</label>
 <input id="factureEcheance" type="date">
 </div>
 
@@ -873,71 +618,61 @@ class="modal"
 
 <div class="modal-actions">
 
-<button
-class="save"
-onclick="saveFacture()"
->
+<button class="save" onclick="saveFacture()">
 Enregistrer
 </button>
 
-<button
-class="cancel"
-onclick="closeModal('factureModal')"
->
+<button class="cancel" onclick="closeModal('factureModal')">
 Annuler
 </button>
 
 </div>
 
 </div>
-
 </div>
 
 
-<!-- PAIEMENT -->
+<!-- MODALE PAIEMENT -->
 
-<div
-id="paiementModal"
-class="modal"
->
+<div id="paiementModal" class="modal">
 
 <div class="modal-box">
 
 <h2>Ajouter un paiement</h2>
 
 <div class="field">
-<label>Client</label>
+<label for="paiementClient">Client</label>
 <select id="paiementClient"></select>
 </div>
 
 <div class="field">
-<label>Facture</label>
+<label for="paiementFacture">Facture</label>
 <select id="paiementFacture"></select>
 </div>
 
 <div class="field">
-<label>Montant</label>
+<label for="paiementMontant">Montant</label>
 <input id="paiementMontant" type="number" step="0.01">
 </div>
 
 <div class="field">
-<label>Date</label>
+<label for="paiementDate">Date du paiement</label>
 <input id="paiementDate" type="date">
 </div>
 
 <div class="field">
-<label>Mode de paiement</label>
+<label for="paiementMode">Mode de paiement</label>
 <select id="paiementMode">
-<option>Espèces</option>
-<option>Virement</option>
-<option>Carte</option>
-<option>Chèque</option>
-<option>Autre</option>
+<option value="Espèces">Espèces</option>
+<option value="Virement">Virement</option>
+<option value="Carte">Carte</option>
+<option value="Mobile Money">Mobile Money</option>
+<option value="Chèque">Chèque</option>
 </select>
 </div>
 
 <div class="field">
-<label>Référence</label>
+<label for="paiementReference">Référence</label>
 <input id="paiementReference" type="text">
 </div>
 
@@ -945,29 +680,21 @@ class="modal"
 
 <div class="modal-actions">
 
-<button
-class="save"
-onclick="savePaiement()"
->
+<button class="save" onclick="savePaiement()">
 Enregistrer
 </button>
 
-<button
-class="cancel"
-onclick="closeModal('paiementModal')"
->
+<button class="cancel" onclick="closeModal('paiementModal')">
 Annuler
 </button>
 
 </div>
 
 </div>
-
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script src="app.js"></script>
 
 </body>
