@@ -1,912 +1,1439 @@
-```html
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elie3MDigital - Administration</title>
+```javascript
+const SUPABASE_URL =
+    "https://hvgllvlwrmzqjxomyoye.supabase.co";
 
-<style>
-*{box-sizing:border-box}
+const SUPABASE_KEY =
+    "sb_publishable_qhJI1hmFUq9BQKMQjCknWg_QPHLKAxn";
 
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f4f6f8;
-    color:#222
-}
+const db =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
+let clients = [];
+let services = [];
+let factures = [];
+let paiements = [];
 
-#loginPage{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px
-}
 
-.login-box{
-    width:100%;
-    max-width:420px;
-    background:#fff;
-    padding:30px;
-    border-radius:16px;
-    box-shadow:0 8px 30px #0002
-}
+/* =========================
+   DEMARRAGE
+========================= */
 
-.login-box h1{text-align:center}
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
 
-.field{margin-bottom:15px}
+        document
+            .getElementById("loginForm")
+            .addEventListener(
+                "submit",
+                login
+            );
 
-.field label{
-    display:block;
-    margin-bottom:6px;
-    font-weight:bold
-}
+        document
+            .getElementById("logout")
+            .addEventListener(
+                "click",
+                logout
+            );
 
-.field input,
-.field select,
-.field textarea{
-    width:100%;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    background:#fff
-}
+        await checkSession();
+    }
+);
 
-.primary{
-    width:100%;
-    padding:13px;
-    border:0;
-    border-radius:8px;
-    background:#2563eb;
-    color:#fff;
-    font-weight:bold
-}
 
-#loginMessage{
-    text-align:center;
-    margin-top:15px
-}
+/* =========================
+   AUTHENTIFICATION
+========================= */
 
-#application{
-    display:none;
-    min-height:100vh
-}
+async function login(event) {
 
-header{
-    background:#111827;
-    color:#fff;
-    padding:18px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px
-}
+    event.preventDefault();
 
-header h1{
-    margin:0;
-    font-size:20px
-}
+    const email =
+        document
+            .getElementById("email")
+            .value
+            .trim();
 
-.logout{
-    background:#dc2626;
-    color:#fff;
-    border:0;
-    padding:9px 14px;
-    border-radius:7px
-}
+    const password =
+        document
+            .getElementById("password")
+            .value;
 
-.layout{
-    display:flex;
-    min-height:calc(100vh - 65px)
-}
+    const message =
+        document
+            .getElementById("loginMessage");
 
-nav{
-    width:220px;
-    background:#fff;
-    border-right:1px solid #ddd;
-    padding:15px
-}
+    message.style.color = "#2563eb";
+    message.textContent =
+        "Connexion en cours...";
 
-nav button{
-    width:100%;
-    padding:12px;
-    margin-bottom:8px;
-    border:0;
-    border-radius:8px;
-    background:#f1f5f9;
-    text-align:left
-}
+    const { data, error } =
+        await db.auth.signInWithPassword({
+            email,
+            password
+        });
 
-nav button:hover{
-    background:#e2e8f0
-}
+    if (error) {
 
-main{
-    flex:1;
-    padding:25px;
-    min-width:0
-}
+        console.error(error);
 
-.page{display:none}
-.page.active{display:block}
+        message.style.color = "#dc2626";
 
-.top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:20px
-}
+        message.textContent =
+            "Erreur : " +
+            error.message;
 
-.add{
-    background:#16a34a;
-    color:#fff;
-    border:0;
-    padding:11px 16px;
-    border-radius:8px
-}
-
-.search{
-    width:100%;
-    max-width:450px;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    margin-bottom:20px
-}
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
-    gap:16px
-}
-
-.card{
-    background:#fff;
-    border-radius:12px;
-    padding:18px;
-    box-shadow:0 2px 10px #0001
-}
-
-.card h3{margin-top:0}
-
-.card p{
-    word-break:break-word
-}
-
-.actions{
-    display:flex;
-    gap:8px;
-    margin-top:15px;
-    flex-wrap:wrap
-}
-
-.edit,.delete{
-    border:0;
-    padding:9px 12px;
-    border-radius:7px;
-    color:#fff
-}
-
-.edit{background:#f59e0b}
-.delete{background:#dc2626}
-
-.empty{
-    background:#fff;
-    padding:25px;
-    border-radius:10px
-}
-
-.stat{
-    font-size:28px;
-    font-weight:bold
-}
-
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:#0008;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    z-index:1000
-}
-
-.modal.active{display:flex}
-
-.modal-box{
-    width:100%;
-    max-width:520px;
-    background:#fff;
-    border-radius:14px;
-    padding:25px;
-    max-height:90vh;
-    overflow:auto
-}
-
-.modal-actions{
-    display:flex;
-    gap:10px;
-    margin-top:15px
-}
-
-.modal-actions button{
-    flex:1;
-    padding:11px;
-    border:0;
-    border-radius:8px
-}
-
-.save{
-    background:#2563eb;
-    color:#fff
-}
-
-.cancel{
-    background:#e5e7eb
-}
-
-.message{
-    margin-top:10px;
-    text-align:center
-}
-
-@media(max-width:700px){
-
-    .layout{
-        display:block
+        return;
     }
 
-    nav{
-        width:100%;
-        display:flex;
-        overflow-x:auto;
-        gap:8px;
-        border-right:0;
-        border-bottom:1px solid #ddd
+    if (!data.session) {
+
+        message.style.color = "#dc2626";
+
+        message.textContent =
+            "Aucune session créée.";
+
+        return;
     }
 
-    nav button{
-        min-width:120px;
-        text-align:center;
-        margin:0
+    showApplication();
+}
+
+
+async function checkSession() {
+
+    const { data, error } =
+        await db.auth.getSession();
+
+    if (error) {
+
+        console.error(error);
+
+        showLogin();
+
+        return;
     }
 
-    main{
-        padding:15px
-    }
+    if (data.session) {
 
-    header h1{
-        font-size:17px
+        showApplication();
+
+    } else {
+
+        showLogin();
     }
 }
-</style>
-</head>
 
-<body>
 
-<!-- CONNEXION -->
+function showLogin() {
 
-<section id="loginPage">
+    document
+        .getElementById("loginPage")
+        .style.display = "flex";
 
-<div class="login-box">
+    document
+        .getElementById("application")
+        .style.display = "none";
+}
 
-<h1>Elie3MDigital</h1>
 
-<p style="text-align:center">
-Administration
-</p>
+async function showApplication() {
 
-<form id="loginForm">
+    document
+        .getElementById("loginPage")
+        .style.display = "none";
 
-<div class="field">
-<label for="email">E-mail</label>
-<input
-id="email"
-type="email"
-autocomplete="username"
-required
->
-</div>
+    document
+        .getElementById("application")
+        .style.display = "block";
 
-<div class="field">
-<label for="password">Mot de passe</label>
-<input
-id="password"
-type="password"
-autocomplete="current-password"
-required
->
-</div>
+    await loadDashboard();
+}
 
-<button class="primary" type="submit">
-Se connecter
-</button>
 
-</form>
+async function logout() {
 
-<div id="loginMessage"></div>
+    await db.auth.signOut();
 
-</div>
+    showLogin();
+}
 
-</section>
 
+/* =========================
+   NAVIGATION
+========================= */
 
-<!-- APPLICATION -->
+function showPage(pageName) {
 
-<section id="application">
+    document
+        .querySelectorAll(".page")
+        .forEach(page => {
 
-<header>
+            page.classList.remove("active");
 
-<h1>
-Elie3MDigital - Administration
-</h1>
+        });
 
-<button id="logout" class="logout">
-Déconnexion
-</button>
+    const page =
+        document.getElementById(pageName);
 
-</header>
+    if (!page) return;
 
+    page.classList.add("active");
 
-<div class="layout">
+    if (pageName === "dashboard") {
+        loadDashboard();
+    }
 
-<nav>
+    if (pageName === "clients") {
+        loadClients();
+    }
 
-<button onclick="showPage('dashboard')">
-🏠 Accueil
-</button>
+    if (pageName === "services") {
+        loadServices();
+    }
 
-<button onclick="showPage('clients')">
-👥 Clients
-</button>
+    if (pageName === "factures") {
+        loadFactures();
+    }
 
-<button onclick="showPage('services')">
-🛠️ Services
-</button>
+    if (pageName === "paiements") {
+        loadPaiements();
+    }
+}
 
-<button onclick="showPage('factures')">
-🧾 Factures
-</button>
 
-<button onclick="showPage('paiements')">
-💳 Paiements
-</button>
+/* =========================
+   TABLEAU DE BORD
+========================= */
 
-</nav>
+async function loadDashboard() {
 
+    await Promise.all([
+        loadClients(),
+        loadServices(),
+        loadFactures(),
+        loadPaiements()
+    ]);
+}
 
-<main>
 
-<!-- TABLEAU DE BORD -->
+/* =========================
+   CLIENTS
+========================= */
 
-<section id="dashboard" class="page active">
+async function loadClients() {
 
-<h2>Tableau de bord</h2>
+    const { data, error } =
+        await db
+            .from("clients")
+            .select("*")
+            .order(
+                "created_at",
+                { ascending: false }
+            );
+
+    if (error) {
+
+        console.error(
+            "Erreur clients :",
+            error
+        );
+
+        showError(
+            "clientsList",
+            error.message
+        );
 
-<div class="cards">
+        return;
+    }
 
-<div class="card">
-<h3>Clients</h3>
-<p class="stat" id="clientCount">0</p>
-<p>client(s)</p>
-</div>
+    clients = data || [];
+
+    document
+        .getElementById("clientCount")
+        .textContent = clients.length;
 
-<div class="card">
-<h3>Services</h3>
-<p class="stat" id="serviceCount">0</p>
-<p>service(s)</p>
-</div>
+    renderClients(clients);
+}
 
-<div class="card">
-<h3>Factures</h3>
-<p class="stat" id="factureCount">0</p>
-<p>facture(s)</p>
-</div>
 
-<div class="card">
-<h3>Paiements</h3>
-<p class="stat" id="paiementCount">0</p>
-<p>paiement(s)</p>
-</div>
+function renderClients(list) {
 
-</div>
+    const container =
+        document
+            .getElementById("clientsList");
 
-</section>
+    container.innerHTML = "";
 
+    if (!list.length) {
 
-<!-- CLIENTS -->
+        container.innerHTML =
+            `<div class="empty">
+                Aucun client enregistré.
+            </div>`;
 
-<section id="clients" class="page">
+        return;
+    }
 
-<div class="top">
+    list.forEach(client => {
 
-<h2>Clients</h2>
+        const card =
+            document.createElement("div");
 
-<button
-class="add"
-onclick="openClientForm()"
->
-+ Ajouter client
-</button>
+        card.className = "card";
 
-</div>
+        card.innerHTML = `
 
-<input
-id="searchClient"
-class="search"
-type="search"
-placeholder="Rechercher un client..."
-oninput="searchClients()"
->
+            <h3>
+                ${escapeHtml(client.nom)}
+            </h3>
 
-<div id="clientsList" class="cards">
+            <p>
+                <strong>Téléphone :</strong>
+                ${escapeHtml(
+                    client.telephone
+                )}
+            </p>
 
-<div class="empty">
-Chargement des clients...
-</div>
+            <p>
+                <strong>E-mail :</strong>
+                ${escapeHtml(
+                    client.email
+                )}
+            </p>
 
-</div>
+            <p>
+                <strong>Adresse :</strong>
+                ${escapeHtml(
+                    client.adresse
+                )}
+            </p>
 
-</section>
+            <p>
+                <strong>Entreprise :</strong>
+                ${escapeHtml(
+                    client.entreprise
+                )}
+            </p>
 
+            <div class="actions">
 
-<!-- SERVICES -->
+                <button
+                    class="edit"
+                    onclick="editClient(${client.id})"
+                >
+                    Modifier
+                </button>
 
-<section id="services" class="page">
+                <button
+                    class="delete"
+                    onclick="deleteClient(${client.id})"
+                >
+                    Supprimer
+                </button>
 
-<div class="top">
+            </div>
+        `;
 
-<h2>Services</h2>
+        container.appendChild(card);
+    });
+}
 
-<button
-class="add"
-onclick="openServiceForm()"
->
-+ Ajouter service
-</button>
 
-</div>
+function searchClients() {
 
-<div id="servicesList" class="cards">
+    const value =
+        document
+            .getElementById("searchClient")
+            .value
+            .toLowerCase()
+            .trim();
 
-<div class="empty">
-Chargement des services...
-</div>
+    if (!value) {
 
-</div>
+        renderClients(clients);
 
-</section>
+        return;
+    }
 
+    const result =
+        clients.filter(client => {
 
-<!-- FACTURES -->
+            return (
 
-<section id="factures" class="page">
+                String(
+                    client.nom || ""
+                )
+                .toLowerCase()
+                .includes(value)
 
-<div class="top">
+                ||
 
-<h2>Factures</h2>
+                String(
+                    client.telephone || ""
+                )
+                .toLowerCase()
+                .includes(value)
 
-<button
-class="add"
-onclick="openFactureForm()"
->
-+ Ajouter facture
-</button>
+                ||
 
-</div>
+                String(
+                    client.email || ""
+                )
+                .toLowerCase()
+                .includes(value)
 
-<div id="facturesList" class="cards">
+                ||
 
-<div class="empty">
-Chargement des factures...
-</div>
+                String(
+                    client.adresse || ""
+                )
+                .toLowerCase()
+                .includes(value)
 
-</div>
+                ||
 
-</section>
+                String(
+                    client.entreprise || ""
+                )
+                .toLowerCase()
+                .includes(value)
+            );
+        });
 
+    renderClients(result);
+}
 
-<!-- PAIEMENTS -->
 
-<section id="paiements" class="page">
+function openClientForm() {
 
-<div class="top">
+    document
+        .getElementById("clientModalTitle")
+        .textContent =
+        "Ajouter un client";
 
-<h2>Paiements</h2>
+    document
+        .getElementById("clientId")
+        .value = "";
 
-<button
-class="add"
-onclick="openPaiementForm()"
->
-+ Ajouter paiement
-</button>
+    document
+        .getElementById("clientNom")
+        .value = "";
 
-</div>
+    document
+        .getElementById("clientTelephone")
+        .value = "";
 
-<div id="paiementsList" class="cards">
+    document
+        .getElementById("clientEmail")
+        .value = "";
 
-<div class="empty">
-Chargement des paiements...
-</div>
+    document
+        .getElementById("clientAdresse")
+        .value = "";
 
-</div>
+    document
+        .getElementById("clientEntreprise")
+        .value = "";
 
-</section>
+    document
+        .getElementById("clientMessage")
+        .textContent = "";
 
-</main>
+    openModal("clientModal");
+}
 
-</div>
 
-</section>
+function editClient(id) {
 
+    const client =
+        clients.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
 
-<!-- MODALE CLIENT -->
+    if (!client) {
 
-<div id="clientModal" class="modal">
+        alert("Client introuvable.");
 
-<div class="modal-box">
+        return;
+    }
 
-<h2 id="clientModalTitle">
-Ajouter un client
-</h2>
+    document
+        .getElementById("clientModalTitle")
+        .textContent =
+        "Modifier un client";
 
-<input id="clientId" type="hidden">
+    document
+        .getElementById("clientId")
+        .value =
+        client.id;
 
-<div class="field">
-<label for="clientNom">Nom</label>
-<input id="clientNom" type="text">
-</div>
+    document
+        .getElementById("clientNom")
+        .value =
+        client.nom || "";
 
-<div class="field">
-<label for="clientTelephone">Téléphone</label>
-<input id="clientTelephone" type="text">
-</div>
+    document
+        .getElementById("clientTelephone")
+        .value =
+        client.telephone || "";
 
-<div class="field">
-<label for="clientEmail">E-mail</label>
-<input id="clientEmail" type="email">
-</div>
+    document
+        .getElementById("clientEmail")
+        .value =
+        client.email || "";
 
-<div class="field">
-<label for="clientAdresse">Adresse</label>
-<input id="clientAdresse" type="text">
-</div>
+    document
+        .getElementById("clientAdresse")
+        .value =
+        client.adresse || "";
 
-<div class="field">
-<label for="clientEntreprise">Entreprise</label>
-<input id="clientEntreprise" type="text">
-</div>
+    document
+        .getElementById("clientEntreprise")
+        .value =
+        client.entreprise || "";
 
-<div id="clientMessage" class="message"></div>
+    document
+        .getElementById("clientMessage")
+        .textContent = "";
 
-<div class="modal-actions">
+    openModal("clientModal");
+}
 
-<button
-class="save"
-onclick="saveClient()"
->
-Enregistrer
-</button>
 
-<button
-class="cancel"
-onclick="closeModal('clientModal')"
->
-Annuler
-</button>
+async function saveClient() {
 
-</div>
+    const id =
+        document
+            .getElementById("clientId")
+            .value;
 
-</div>
+    const data = {
 
-</div>
+        nom:
+            document
+                .getElementById("clientNom")
+                .value
+                .trim(),
 
+        telephone:
+            document
+                .getElementById("clientTelephone")
+                .value
+                .trim(),
 
-<!-- MODALE SERVICE -->
+        email:
+            document
+                .getElementById("clientEmail")
+                .value
+                .trim(),
 
-<div id="serviceModal" class="modal">
+        adresse:
+            document
+                .getElementById("clientAdresse")
+                .value
+                .trim(),
 
-<div class="modal-box">
+        entreprise:
+            document
+                .getElementById("clientEntreprise")
+                .value
+                .trim()
+    };
 
-<h2>Ajouter un service</h2>
+    const message =
+        document
+            .getElementById("clientMessage");
 
-<div class="field">
-<label for="serviceNom">Nom</label>
-<input id="serviceNom" type="text">
-</div>
+    if (!data.nom) {
 
-<div class="field">
-<label for="serviceDescription">
-Description
-</label>
+        message.style.color =
+            "#dc2626";
 
-<textarea
-id="serviceDescription"
-rows="4"
-></textarea>
+        message.textContent =
+            "Le nom est obligatoire.";
 
-</div>
+        return;
+    }
 
-<div class="field">
-<label for="servicePrix">Prix</label>
-<input
-id="servicePrix"
-type="number"
-step="0.01"
->
-</div>
+    message.style.color =
+        "#2563eb";
 
-<div id="serviceMessage" class="message"></div>
+    message.textContent =
+        "Enregistrement...";
 
-<div class="modal-actions">
+    let result;
 
-<button
-class="save"
-onclick="saveService()"
->
-Enregistrer
-</button>
+    if (id) {
 
-<button
-class="cancel"
-onclick="closeModal('serviceModal')"
->
-Annuler
-</button>
+        result =
+            await db
+                .from("clients")
+                .update(data)
+                .eq("id", id);
 
-</div>
+    } else {
 
-</div>
+        result =
+            await db
+                .from("clients")
+                .insert(data);
+    }
 
-</div>
+    if (result.error) {
 
+        console.error(result.error);
 
-<!-- MODALE FACTURE -->
+        message.style.color =
+            "#dc2626";
 
-<div id="factureModal" class="modal">
+        message.textContent =
+            "Erreur : " +
+            result.error.message;
 
-<div class="modal-box">
+        return;
+    }
 
-<h2>Ajouter une facture</h2>
+    closeModal("clientModal");
 
-<div class="field">
+    await loadClients();
+}
 
-<label for="factureClient">
-Client
-</label>
 
-<select id="factureClient"></select>
+async function deleteClient(id) {
 
-</div>
+    if (
+        !confirm(
+            "Voulez-vous vraiment supprimer ce client ?"
+        )
+    ) {
+        return;
+    }
 
-<div class="field">
+    const { error } =
+        await db
+            .from("clients")
+            .delete()
+            .eq("id", id);
 
-<label for="factureNumero">
-Numéro
-</label>
+    if (error) {
 
-<input
-id="factureNumero"
-type="text"
->
+        alert(
+            "Impossible de supprimer le client :\n" +
+            error.message
+        );
 
-</div>
+        return;
+    }
 
-<div class="field">
+    await loadClients();
+}
 
-<label for="factureMontant">
-Montant
-</label>
 
-<input
-id="factureMontant"
-type="number"
-step="0.01"
->
+/* =========================
+   SERVICES
+========================= */
 
-</div>
+async function loadServices() {
 
-<div class="field">
+    const { data, error } =
+        await db
+            .from("services")
+            .select("*")
+            .order(
+                "created_at",
+                { ascending: false }
+            );
 
-<label for="factureStatut">
-Statut
-</label>
+    if (error) {
 
-<select id="factureStatut">
+        console.error(
+            "Erreur services :",
+            error
+        );
 
-<option value="En attente">
-En attente
-</option>
+        showError(
+            "servicesList",
+            error.message
+        );
 
-<option value="Payée">
-Payée
-</option>
+        return;
+    }
 
-<option value="Partiellement payée">
-Partiellement payée
-</option>
+    services = data || [];
 
-<option value="Annulée">
-Annulée
-</option>
+    document
+        .getElementById("serviceCount")
+        .textContent =
+        services.length;
 
-</select>
+    renderServices();
+}
 
-</div>
 
-<div class="field">
+function renderServices() {
 
-<label for="factureDate">
-Date de facture
-</label>
+    const container =
+        document
+            .getElementById("servicesList");
 
-<input
-id="factureDate"
-type="date"
->
+    container.innerHTML = "";
 
-</div>
+    if (!services.length) {
 
-<div class="field">
+        container.innerHTML =
+            `<div class="empty">
+                Aucun service enregistré.
+            </div>`;
 
-<label for="factureEcheance">
-Date d'échéance
-</label>
+        return;
+    }
 
-<input
-id="factureEcheance"
-type="date"
->
+    services.forEach(service => {
 
-</div>
+        const card =
+            document.createElement("div");
 
-<div id="factureMessage" class="message"></div>
+        card.className = "card";
 
-<div class="modal-actions">
+        card.innerHTML = `
 
-<button
-class="save"
-onclick="saveFacture()"
->
-Enregistrer
-</button>
+            <h3>
+                ${escapeHtml(
+                    service.nom
+                )}
+            </h3>
 
-<button
-class="cancel"
-onclick="closeModal('factureModal')"
->
-Annuler
-</button>
+            <p>
+                ${escapeHtml(
+                    service.description
+                )}
+            </p>
 
-</div>
+            <p>
+                <strong>Prix :</strong>
+                ${escapeHtml(
+                    service.prix
+                )}
+            </p>
+        `;
 
-</div>
+        container.appendChild(card);
+    });
+}
 
-</div>
 
+function openServiceForm() {
 
-<!-- MODALE PAIEMENT -->
+    document
+        .getElementById("serviceNom")
+        .value = "";
 
-<div id="paiementModal" class="modal">
+    document
+        .getElementById("serviceDescription")
+        .value = "";
 
-<div class="modal-box">
+    document
+        .getElementById("servicePrix")
+        .value = "";
 
-<h2>Ajouter un paiement</h2>
+    document
+        .getElementById("serviceMessage")
+        .textContent = "";
 
-<div class="field">
+    openModal("serviceModal");
+}
 
-<label for="paiementClient">
-Client
-</label>
 
-<select id="paiementClient"></select>
+async function saveService() {
 
-</div>
+    const nom =
+        document
+            .getElementById("serviceNom")
+            .value
+            .trim();
 
-<div class="field">
+    const description =
+        document
+            .getElementById("serviceDescription")
+            .value
+            .trim();
 
-<label for="paiementFacture">
-Facture
-</label>
+    const prix =
+        Number(
+            document
+                .getElementById("servicePrix")
+                .value || 0
+        );
 
-<select id="paiementFacture"></select>
+    const message =
+        document
+            .getElementById("serviceMessage");
 
-</div>
+    if (!nom) {
 
-<div class="field">
+        message.style.color =
+            "#dc2626";
 
-<label for="paiementMontant">
-Montant
-</label>
+        message.textContent =
+            "Le nom du service est obligatoire.";
 
-<input
-id="paiementMontant"
-type="number"
-step="0.01"
->
+        return;
+    }
 
-</div>
+    const { error } =
+        await db
+            .from("services")
+            .insert({
+                nom,
+                description,
+                prix
+            });
 
-<div class="field">
+    if (error) {
 
-<label for="paiementDate">
-Date du paiement
-</label>
+        message.style.color =
+            "#dc2626";
 
-<input
-id="paiementDate"
-type="date"
->
+        message.textContent =
+            "Erreur : " +
+            error.message;
 
-</div>
+        return;
+    }
 
-<div class="field">
+    closeModal("serviceModal");
 
-<label for="paiementMode">
-Mode de paiement
-</label>
+    await loadServices();
+}
 
-<select id="paiementMode">
 
-<option value="Espèces">Espèces</option>
-<option value="Virement">Virement</option>
-<option value="Carte">Carte</option>
-<option value="Mobile Money">Mobile Money</option>
-<option value="Chèque">Chèque</option>
+/* =========================
+   FACTURES
+========================= */
 
-</select>
+async function loadFactures() {
 
-</div>
+    const { data, error } =
+        await db
+            .from("factures")
+            .select("*")
+            .order(
+                "created_at",
+                { ascending: false }
+            );
 
-<div class="field">
+    if (error) {
 
-<label for="paiementReference">
-Référence
-</label>
+        console.error(
+            "Erreur factures :",
+            error
+        );
 
-<input
-id="paiementReference"
-type="text"
->
+        showError(
+            "facturesList",
+            error.message
+        );
 
-</div>
+        return;
+    }
 
-<div id="paiementMessage" class="message"></div>
+    factures = data || [];
 
-<div class="modal-actions">
+    document
+        .getElementById("factureCount")
+        .textContent =
+        factures.length;
 
-<button
-class="save"
-onclick="savePaiement()"
->
-Enregistrer
-</button>
+    renderFactures();
+}
 
-<button
-class="cancel"
-onclick="closeModal('paiementModal')"
->
-Annuler
-</button>
 
-</div>
+function renderFactures() {
 
-</div>
+    const container =
+        document
+            .getElementById("facturesList");
 
-</div>
+    container.innerHTML = "";
 
+    if (!factures.length) {
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        container.innerHTML =
+            `<div class="empty">
+                Aucune facture enregistrée.
+            </div>`;
 
-<script src="app.js"></script>
+        return;
+    }
 
-</body>
-</html>
+    factures.forEach(facture => {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "card";
+
+        card.innerHTML = `
+
+            <h3>
+                Facture
+                ${escapeHtml(
+                    facture.numero
+                )}
+            </h3>
+
+            <p>
+                <strong>Client ID :</strong>
+                ${escapeHtml(
+                    facture.client_id
+                )}
+            </p>
+
+            <p>
+                <strong>Montant :</strong>
+                ${escapeHtml(
+                    facture.montant
+                )}
+            </p>
+
+            <p>
+                <strong>Statut :</strong>
+                ${escapeHtml(
+                    facture.statut
+                )}
+            </p>
+
+            <p>
+                <strong>Date :</strong>
+                ${escapeHtml(
+                    facture.date_facture
+                )}
+            </p>
+
+            <p>
+                <strong>Échéance :</strong>
+                ${escapeHtml(
+                    facture.date_echeance
+                )}
+            </p>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+
+function openFactureForm() {
+
+    fillClientSelect(
+        "factureClient"
+    );
+
+    document
+        .getElementById("factureNumero")
+        .value = "";
+
+    document
+        .getElementById("factureMontant")
+        .value = "";
+
+    document
+        .getElementById("factureStatut")
+        .value =
+        "En attente";
+
+    document
+        .getElementById("factureDate")
+        .value =
+        today();
+
+    document
+        .getElementById("factureEcheance")
+        .value = "";
+
+    document
+        .getElementById("factureMessage")
+        .textContent = "";
+
+    openModal("factureModal");
+}
+
+
+async function saveFacture() {
+
+    const clientId =
+        document
+            .getElementById("factureClient")
+            .value;
+
+    const numero =
+        document
+            .getElementById("factureNumero")
+            .value
+            .trim();
+
+    const montant =
+        Number(
+            document
+                .getElementById("factureMontant")
+                .value || 0
+        );
+
+    const statut =
+        document
+            .getElementById("factureStatut")
+            .value;
+
+    const dateFacture =
+        document
+            .getElementById("factureDate")
+            .value;
+
+    const dateEcheance =
+        document
+            .getElementById("factureEcheance")
+            .value;
+
+    const message =
+        document
+            .getElementById("factureMessage");
+
+    if (!clientId || !numero) {
+
+        message.style.color =
+            "#dc2626";
+
+        message.textContent =
+            "Client et numéro obligatoires.";
+
+        return;
+    }
+
+    const { error } =
+        await db
+            .from("factures")
+            .insert({
+                client_id: Number(clientId),
+                numero,
+                montant,
+                statut,
+                date_facture:
+                    dateFacture || null,
+                date_echeance:
+                    dateEcheance || null
+            });
+
+    if (error) {
+
+        message.style.color =
+            "#dc2626";
+
+        message.textContent =
+            "Erreur : " +
+            error.message;
+
+        return;
+    }
+
+    closeModal("factureModal");
+
+    await loadFactures();
+}
+
+
+/* =========================
+   PAIEMENTS
+========================= */
+
+async function loadPaiements() {
+
+    const { data, error } =
+        await db
+            .from("paiements")
+            .select("*")
+            .order(
+                "created_at",
+                { ascending: false }
+            );
+
+    if (error) {
+
+        console.error(
+            "Erreur paiements :",
+            error
+        );
+
+        showError(
+            "paiementsList",
+            error.message
+        );
+
+        return;
+    }
+
+    paiements = data || [];
+
+    document
+        .getElementById("paiementCount")
+        .textContent =
+        paiements.length;
+
+    renderPaiements();
+}
+
+
+function renderPaiements() {
+
+    const container =
+        document
+            .getElementById("paiementsList");
+
+    container.innerHTML = "";
+
+    if (!paiements.length) {
+
+        container.innerHTML =
+            `<div class="empty">
+                Aucun paiement enregistré.
+            </div>`;
+
+        return;
+    }
+
+    paiements.forEach(paiement => {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "card";
+
+        card.innerHTML = `
+
+            <h3>Paiement</h3>
+
+            <p>
+                <strong>Facture ID :</strong>
+                ${escapeHtml(
+                    paiement.facture_id
+                )}
+            </p>
+
+            <p>
+                <strong>Client ID :</strong>
+                ${escapeHtml(
+                    paiement.client_id
+                )}
+            </p>
+
+            <p>
+                <strong>Montant :</strong>
+                ${escapeHtml(
+                    paiement.montant
+                )}
+            </p>
+
+            <p>
+                <strong>Date :</strong>
+                ${escapeHtml(
+                    paiement.date_paiement
+                )}
+            </p>
+
+            <p>
+                <strong>Référence :</strong>
+                ${escapeHtml(
+                    paiement.reference
+                )}
+            </p>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+
+function openPaiementForm() {
+
+    fillClientSelect(
+        "paiementClient"
+    );
+
+    fillFactureSelect();
+
+    document
+        .getElementById("paiementMontant")
+        .value = "";
+
+    document
+        .getElementById("paiementDate")
+        .value =
+        today();
+
+    document
+        .getElementById("paiementMode")
+        .value =
+        "Espèces";
+
+    document
+        .getElementById("paiementReference")
+        .value = "";
+
+    document
+        .getElementById("paiementMessage")
+        .textContent = "";
+
+    openModal("paiementModal");
+}
+
+
+async function savePaiement() {
+
+    const factureId =
+        document
+            .getElementById("paiementFacture")
+            .value;
+
+    const clientId =
+        document
+            .getElementById("paiementClient")
+            .value;
+
+    const montant =
+        Number(
+            document
+                .getElementById("paiementMontant")
+                .value || 0
+        );
+
+    const datePaiement =
+        document
+            .getElementById("paiementDate")
+            .value;
+
+    const mode =
+        document
+            .getElementById("paiementMode")
+            .value;
+
+    const reference =
+        document
+            .getElementById("paiementReference")
+            .value
+            .trim();
+
+    const message =
+        document
+            .getElementById("paiementMessage");
+
+    if (!factureId || !clientId) {
+
+        message.style.color =
+            "#dc2626";
+
+        message.textContent =
+            "Le client et la facture sont obligatoires.";
+
+        return;
+    }
+
+    const { error } =
+        await db
+            .from("paiements")
+            .insert({
+                facture_id:
+                    Number(factureId),
+
+                client_id:
+                    Number(clientId),
+
+                montant,
+
+                date_paiement:
+                    datePaiement || null,
+
+                mode_paiement:
+                    mode,
+
+                reference
+            });
+
+    if (error) {
+
+        message.style.color =
+            "#dc2626";
+
+        message.textContent =
+            "Erreur : " +
+            error.message;
+
+        return;
+    }
+
+    closeModal("paiementModal");
+
+    await loadPaiements();
+}
+
+
+/* =========================
+   LISTES
+========================= */
+
+function fillClientSelect(id) {
+
+    const select =
+        document.getElementById(id);
+
+    select.innerHTML = "";
+
+    clients.forEach(client => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            client.id;
+
+        option.textContent =
+            client.nom;
+
+        select.appendChild(option);
+    });
+
+    if (!clients.length) {
+
+        const option =
+            document.createElement("option");
+
+        option.value = "";
+
+        option.textContent =
+            "Aucun client";
+
+        select.appendChild(option);
+    }
+}
+
+
+function fillFactureSelect() {
+
+    const select =
+        document.getElementById(
+            "paiementFacture"
+        );
+
+    select.innerHTML = "";
+
+    factures.forEach(facture => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            facture.id;
+
+        option.textContent =
+            `${facture.numero} - ${facture.montant}`;
+
+        select.appendChild(option);
+    });
+
+    if (!factures.length) {
+
+        const option =
+            document.createElement("option");
+
+        option.value = "";
+
+        option.textContent =
+            "Aucune facture";
+
+        select.appendChild(option);
+    }
+}
+
+
+/* =========================
+   MODALES
+========================= */
+
+function openModal(id) {
+
+    const modal =
+        document.getElementById(id);
+
+    if (modal) {
+        modal.classList.add("active");
+    }
+}
+
+
+function closeModal(id) {
+
+    const modal =
+        document.getElementById(id);
+
+    if (modal) {
+        modal.classList.remove("active");
+    }
+}
+
+
+/* =========================
+   OUTILS
+========================= */
+
+function today() {
+
+    return new Date()
+        .toISOString()
+        .slice(0, 10);
+}
+
+
+function showError(id, message) {
+
+    const element =
+        document.getElementById(id);
+
+    if (!element) return;
+
+    element.innerHTML =
+        `<div class="empty">
+            Erreur : ${escapeHtml(message)}
+        </div>`;
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
 ```
