@@ -22,8 +22,8 @@ button{cursor:pointer}
 #loginPage{
     min-height:100vh;
     display:flex;
-    justify-content:center;
     align-items:center;
+    justify-content:center;
     padding:20px
 }
 
@@ -121,7 +121,9 @@ nav button{
     text-align:left
 }
 
-nav button:hover{background:#e2e8f0}
+nav button:hover{
+    background:#e2e8f0
+}
 
 main{
     flex:1;
@@ -173,7 +175,9 @@ main{
 
 .card h3{margin-top:0}
 
-.card p{word-break:break-word}
+.card p{
+    word-break:break-word
+}
 
 .actions{
     display:flex;
@@ -244,18 +248,20 @@ main{
     color:#fff
 }
 
-.cancel{background:#e5e7eb}
+.cancel{
+    background:#e5e7eb
+}
 
 .message{
     margin-top:10px;
     text-align:center
 }
 
-.hidden{display:none!important}
-
 @media(max-width:700px){
 
-    .layout{display:block}
+    .layout{
+        display:block
+    }
 
     nav{
         width:100%;
@@ -272,9 +278,13 @@ main{
         margin:0
     }
 
-    main{padding:15px}
+    main{
+        padding:15px
+    }
 
-    header h1{font-size:17px}
+    header h1{
+        font-size:17px
+    }
 }
 </style>
 </head>
@@ -289,18 +299,30 @@ main{
 
 <h1>Elie3MDigital</h1>
 
-<p style="text-align:center">Administration</p>
+<p style="text-align:center">
+Administration
+</p>
 
 <form id="loginForm">
 
 <div class="field">
 <label for="email">E-mail</label>
-<input id="email" type="email" autocomplete="username" required>
+<input
+id="email"
+type="email"
+autocomplete="username"
+required
+>
 </div>
 
 <div class="field">
 <label for="password">Mot de passe</label>
-<input id="password" type="password" autocomplete="current-password" required>
+<input
+id="password"
+type="password"
+autocomplete="current-password"
+required
+>
 </div>
 
 <button class="primary" type="submit">
@@ -322,7 +344,9 @@ Se connecter
 
 <header>
 
-<h1>Elie3MDigital - Administration</h1>
+<h1>
+Elie3MDigital - Administration
+</h1>
 
 <button id="logout" class="logout">
 Déconnexion
@@ -330,21 +354,37 @@ Déconnexion
 
 </header>
 
+
 <div class="layout">
 
 <nav>
 
-<button onclick="showPage('dashboard')">🏠 Accueil</button>
-<button onclick="showPage('clients')">👥 Clients</button>
-<button onclick="showPage('services')">🛠️ Services</button>
-<button onclick="showPage('factures')">🧾 Factures</button>
-<button onclick="showPage('paiements')">💳 Paiements</button>
+<button onclick="showPage('dashboard')">
+🏠 Accueil
+</button>
+
+<button onclick="showPage('clients')">
+👥 Clients
+</button>
+
+<button onclick="showPage('services')">
+🛠️ Services
+</button>
+
+<button onclick="showPage('factures')">
+🧾 Factures
+</button>
+
+<button onclick="showPage('paiements')">
+💳 Paiements
+</button>
 
 </nav>
 
+
 <main>
 
-<!-- ACCUEIL -->
+<!-- TABLEAU DE BORD -->
 
 <section id="dashboard" class="page active">
 
@@ -389,7 +429,10 @@ Déconnexion
 
 <h2>Clients</h2>
 
-<button class="add" onclick="openClientForm()">
+<button
+class="add"
+onclick="openClientForm()"
+>
 + Ajouter client
 </button>
 
@@ -404,7 +447,11 @@ oninput="searchClients()"
 >
 
 <div id="clientsList" class="cards">
-<div class="empty">Chargement des clients...</div>
+
+<div class="empty">
+Chargement des clients...
+</div>
+
 </div>
 
 </section>
@@ -418,14 +465,21 @@ oninput="searchClients()"
 
 <h2>Services</h2>
 
-<button class="add" onclick="openServiceForm()">
+<button
+class="add"
+onclick="openServiceForm()"
+>
 + Ajouter service
 </button>
 
 </div>
 
 <div id="servicesList" class="cards">
-<div class="empty">Chargement des services...</div>
+
+<div class="empty">
+Chargement des services...
+</div>
+
 </div>
 
 </section>
@@ -439,14 +493,21 @@ oninput="searchClients()"
 
 <h2>Factures</h2>
 
-<button class="add" onclick="openFactureForm()">
+<button
+class="add"
+onclick="openFactureForm()"
+>
 + Ajouter facture
 </button>
 
 </div>
 
 <div id="facturesList" class="cards">
-<div class="empty">Chargement des factures...</div>
+
+<div class="empty">
+Chargement des factures...
+</div>
+
 </div>
 
 </section>
@@ -460,20 +521,29 @@ oninput="searchClients()"
 
 <h2>Paiements</h2>
 
-<button class="add" onclick="openPaiementForm()">
+<button
+class="add"
+onclick="openPaiementForm()"
+>
 + Ajouter paiement
 </button>
 
 </div>
 
 <div id="paiementsList" class="cards">
-<div class="empty">Chargement des paiements...</div>
+
+<div class="empty">
+Chargement des paiements...
+</div>
+
 </div>
 
 </section>
 
 </main>
+
 </div>
+
 </section>
 
 
@@ -483,7 +553,9 @@ oninput="searchClients()"
 
 <div class="modal-box">
 
-<h2 id="clientModalTitle">Ajouter un client</h2>
+<h2 id="clientModalTitle">
+Ajouter un client
+</h2>
 
 <input id="clientId" type="hidden">
 
@@ -516,17 +588,24 @@ oninput="searchClients()"
 
 <div class="modal-actions">
 
-<button class="save" onclick="saveClient()">
+<button
+class="save"
+onclick="saveClient()"
+>
 Enregistrer
 </button>
 
-<button class="cancel" onclick="closeModal('clientModal')">
+<button
+class="cancel"
+onclick="closeModal('clientModal')"
+>
 Annuler
 </button>
 
 </div>
 
 </div>
+
 </div>
 
 
@@ -544,30 +623,48 @@ Annuler
 </div>
 
 <div class="field">
-<label for="serviceDescription">Description</label>
-<textarea id="serviceDescription" rows="4"></textarea>
+<label for="serviceDescription">
+Description
+</label>
+
+<textarea
+id="serviceDescription"
+rows="4"
+></textarea>
+
 </div>
 
 <div class="field">
 <label for="servicePrix">Prix</label>
-<input id="servicePrix" type="number" step="0.01">
+<input
+id="servicePrix"
+type="number"
+step="0.01"
+>
 </div>
 
 <div id="serviceMessage" class="message"></div>
 
 <div class="modal-actions">
 
-<button class="save" onclick="saveService()">
+<button
+class="save"
+onclick="saveService()"
+>
 Enregistrer
 </button>
 
-<button class="cancel" onclick="closeModal('serviceModal')">
+<button
+class="cancel"
+onclick="closeModal('serviceModal')"
+>
 Annuler
 </button>
 
 </div>
 
 </div>
+
 </div>
 
 
@@ -580,55 +677,118 @@ Annuler
 <h2>Ajouter une facture</h2>
 
 <div class="field">
-<label for="factureClient">Client</label>
+
+<label for="factureClient">
+Client
+</label>
+
 <select id="factureClient"></select>
+
 </div>
 
 <div class="field">
-<label for="factureNumero">Numéro</label>
-<input id="factureNumero" type="text">
+
+<label for="factureNumero">
+Numéro
+</label>
+
+<input
+id="factureNumero"
+type="text"
+>
+
 </div>
 
 <div class="field">
-<label for="factureMontant">Montant</label>
-<input id="factureMontant" type="number" step="0.01">
+
+<label for="factureMontant">
+Montant
+</label>
+
+<input
+id="factureMontant"
+type="number"
+step="0.01"
+>
+
 </div>
 
 <div class="field">
-<label for="factureStatut">Statut</label>
+
+<label for="factureStatut">
+Statut
+</label>
+
 <select id="factureStatut">
-<option value="En attente">En attente</option>
-<option value="Payée">Payée</option>
-<option value="Partiellement payée">Partiellement payée</option>
-<option value="Annulée">Annulée</option>
+
+<option value="En attente">
+En attente
+</option>
+
+<option value="Payée">
+Payée
+</option>
+
+<option value="Partiellement payée">
+Partiellement payée
+</option>
+
+<option value="Annulée">
+Annulée
+</option>
+
 </select>
+
 </div>
 
 <div class="field">
-<label for="factureDate">Date de facture</label>
-<input id="factureDate" type="date">
+
+<label for="factureDate">
+Date de facture
+</label>
+
+<input
+id="factureDate"
+type="date"
+>
+
 </div>
 
 <div class="field">
-<label for="factureEcheance">Date d'échéance</label>
-<input id="factureEcheance" type="date">
+
+<label for="factureEcheance">
+Date d'échéance
+</label>
+
+<input
+id="factureEcheance"
+type="date"
+>
+
 </div>
 
 <div id="factureMessage" class="message"></div>
 
 <div class="modal-actions">
 
-<button class="save" onclick="saveFacture()">
+<button
+class="save"
+onclick="saveFacture()"
+>
 Enregistrer
 </button>
 
-<button class="cancel" onclick="closeModal('factureModal')">
+<button
+class="cancel"
+onclick="closeModal('factureModal')"
+>
 Annuler
 </button>
 
 </div>
 
 </div>
+
 </div>
 
 
@@ -641,60 +801,110 @@ Annuler
 <h2>Ajouter un paiement</h2>
 
 <div class="field">
-<label for="paiementClient">Client</label>
+
+<label for="paiementClient">
+Client
+</label>
+
 <select id="paiementClient"></select>
+
 </div>
 
 <div class="field">
-<label for="paiementFacture">Facture</label>
+
+<label for="paiementFacture">
+Facture
+</label>
+
 <select id="paiementFacture"></select>
+
 </div>
 
 <div class="field">
-<label for="paiementMontant">Montant</label>
-<input id="paiementMontant" type="number" step="0.01">
+
+<label for="paiementMontant">
+Montant
+</label>
+
+<input
+id="paiementMontant"
+type="number"
+step="0.01"
+>
+
 </div>
 
 <div class="field">
-<label for="paiementDate">Date du paiement</label>
-<input id="paiementDate" type="date">
+
+<label for="paiementDate">
+Date du paiement
+</label>
+
+<input
+id="paiementDate"
+type="date"
+>
+
 </div>
 
 <div class="field">
-<label for="paiementMode">Mode de paiement</label>
+
+<label for="paiementMode">
+Mode de paiement
+</label>
+
 <select id="paiementMode">
+
 <option value="Espèces">Espèces</option>
 <option value="Virement">Virement</option>
 <option value="Carte">Carte</option>
 <option value="Mobile Money">Mobile Money</option>
 <option value="Chèque">Chèque</option>
+
 </select>
+
 </div>
 
 <div class="field">
-<label for="paiementReference">Référence</label>
-<input id="paiementReference" type="text">
+
+<label for="paiementReference">
+Référence
+</label>
+
+<input
+id="paiementReference"
+type="text"
+>
+
 </div>
 
 <div id="paiementMessage" class="message"></div>
 
 <div class="modal-actions">
 
-<button class="save" onclick="savePaiement()">
+<button
+class="save"
+onclick="savePaiement()"
+>
 Enregistrer
 </button>
 
-<button class="cancel" onclick="closeModal('paiementModal')">
+<button
+class="cancel"
+onclick="closeModal('paiementModal')"
+>
 Annuler
 </button>
 
 </div>
 
 </div>
+
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script src="app.js"></script>
 
 </body>
