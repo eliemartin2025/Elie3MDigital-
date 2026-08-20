@@ -5,11 +5,17 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
     "sb_publishable_qhJI1hmFUq9BQKMQjCknWg_QPHLKAxn";
 
-const db =
+
+/* =========================
+   SUPABASE
+========================= */
+
+const supabaseClient =
     window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
     );
+
 
 let clients = [];
 let services = [];
@@ -23,32 +29,181 @@ let paiements = [];
 
 document.addEventListener(
     "DOMContentLoaded",
-    async () => {
-
-        document
-            .getElementById("loginForm")
-            .addEventListener(
-                "submit",
-                login
-            );
-
-        document
-            .getElementById("logout")
-            .addEventListener(
-                "click",
-                logout
-            );
-
-        await checkSession();
-    }
+    init
 );
 
 
+async function init(){
+
+    console.log(
+        "Application démarrée"
+    );
+
+    setupEvents();
+
+    await checkSession();
+}
+
+
 /* =========================
-   AUTHENTIFICATION
+   EVENEMENTS
 ========================= */
 
-async function login(event) {
+function setupEvents(){
+
+    document
+        .getElementById("loginForm")
+        .addEventListener(
+            "submit",
+            login
+        );
+
+
+    document
+        .getElementById("logoutButton")
+        .addEventListener(
+            "click",
+            logout
+        );
+
+
+    document
+        .querySelectorAll(
+            "nav button[data-page]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    showPage(
+                        button.dataset.page
+                    );
+
+                }
+            );
+
+        });
+
+
+    document
+        .getElementById(
+            "clientSearch"
+        )
+        .addEventListener(
+            "input",
+            searchClients
+        );
+
+
+    document
+        .getElementById(
+            "addClientButton"
+        )
+        .addEventListener(
+            "click",
+            openClientForm
+        );
+
+
+    document
+        .getElementById(
+            "saveClientButton"
+        )
+        .addEventListener(
+            "click",
+            saveClient
+        );
+
+
+    document
+        .getElementById(
+            "addServiceButton"
+        )
+        .addEventListener(
+            "click",
+            openServiceForm
+        );
+
+
+    document
+        .getElementById(
+            "saveServiceButton"
+        )
+        .addEventListener(
+            "click",
+            saveService
+        );
+
+
+    document
+        .getElementById(
+            "addFactureButton"
+        )
+        .addEventListener(
+            "click",
+            openFactureForm
+        );
+
+
+    document
+        .getElementById(
+            "saveFactureButton"
+        )
+        .addEventListener(
+            "click",
+            saveFacture
+        );
+
+
+    document
+        .getElementById(
+            "addPaiementButton"
+        )
+        .addEventListener(
+            "click",
+            openPaiementForm
+        );
+
+
+    document
+        .getElementById(
+            "savePaiementButton"
+        )
+        .addEventListener(
+            "click",
+            savePaiement
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-close]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    closeModal(
+                        button.dataset.close
+                    );
+
+                }
+            );
+
+        });
+
+}
+
+
+/* =========================
+   AUTH
+========================= */
+
+async function login(event){
 
     event.preventDefault();
 
@@ -65,530 +220,33 @@ async function login(event) {
 
     const message =
         document
-            .getElementById("loginMessage");
-
-    message.style.color = "#2563eb";
-    message.textContent =
-        "Connexion en cours...";
-
-    const { data, error } =
-        await db.auth.signInWithPassword({
-            email,
-            password
-        });
-
-    if (error) {
-
-        console.error(error);
-
-        message.style.color = "#dc2626";
-
-        message.textContent =
-            "Erreur : " +
-            error.message;
-
-        return;
-    }
-
-    if (!data.session) {
-
-        message.style.color = "#dc2626";
-
-        message.textContent =
-            "Aucune session créée.";
-
-        return;
-    }
-
-    showApplication();
-}
-
-
-async function checkSession() {
-
-    const { data, error } =
-        await db.auth.getSession();
-
-    if (error) {
-
-        console.error(error);
-
-        showLogin();
-
-        return;
-    }
-
-    if (data.session) {
-
-        showApplication();
-
-    } else {
-
-        showLogin();
-    }
-}
-
-
-function showLogin() {
-
-    document
-        .getElementById("loginPage")
-        .style.display = "flex";
-
-    document
-        .getElementById("application")
-        .style.display = "none";
-}
-
-
-async function showApplication() {
-
-    document
-        .getElementById("loginPage")
-        .style.display = "none";
-
-    document
-        .getElementById("application")
-        .style.display = "block";
-
-    await loadDashboard();
-}
-
-
-async function logout() {
-
-    await db.auth.signOut();
-
-    showLogin();
-}
-
-
-/* =========================
-   NAVIGATION
-========================= */
-
-function showPage(pageName) {
-
-    document
-        .querySelectorAll(".page")
-        .forEach(page => {
-
-            page.classList.remove("active");
-
-        });
-
-    const page =
-        document.getElementById(pageName);
-
-    if (!page) return;
-
-    page.classList.add("active");
-
-    if (pageName === "dashboard") {
-        loadDashboard();
-    }
-
-    if (pageName === "clients") {
-        loadClients();
-    }
-
-    if (pageName === "services") {
-        loadServices();
-    }
-
-    if (pageName === "factures") {
-        loadFactures();
-    }
-
-    if (pageName === "paiements") {
-        loadPaiements();
-    }
-}
-
-
-/* =========================
-   TABLEAU DE BORD
-========================= */
-
-async function loadDashboard() {
-
-    await Promise.all([
-        loadClients(),
-        loadServices(),
-        loadFactures(),
-        loadPaiements()
-    ]);
-}
-
-
-/* =========================
-   CLIENTS
-========================= */
-
-async function loadClients() {
-
-    const { data, error } =
-        await db
-            .from("clients")
-            .select("*")
-            .order(
-                "created_at",
-                { ascending: false }
+            .getElementById(
+                "loginMessage"
             );
 
-    if (error) {
-
-        console.error(
-            "Erreur clients :",
-            error
-        );
-
-        showError(
-            "clientsList",
-            error.message
-        );
-
-        return;
-    }
-
-    clients = data || [];
-
-    document
-        .getElementById("clientCount")
-        .textContent = clients.length;
-
-    renderClients(clients);
-}
-
-
-function renderClients(list) {
-
-    const container =
-        document
-            .getElementById("clientsList");
-
-    container.innerHTML = "";
-
-    if (!list.length) {
-
-        container.innerHTML =
-            `<div class="empty">
-                Aucun client enregistré.
-            </div>`;
-
-        return;
-    }
-
-    list.forEach(client => {
-
-        const card =
-            document.createElement("div");
-
-        card.className = "card";
-
-        card.innerHTML = `
-
-            <h3>
-                ${escapeHtml(client.nom)}
-            </h3>
-
-            <p>
-                <strong>Téléphone :</strong>
-                ${escapeHtml(
-                    client.telephone
-                )}
-            </p>
-
-            <p>
-                <strong>E-mail :</strong>
-                ${escapeHtml(
-                    client.email
-                )}
-            </p>
-
-            <p>
-                <strong>Adresse :</strong>
-                ${escapeHtml(
-                    client.adresse
-                )}
-            </p>
-
-            <p>
-                <strong>Entreprise :</strong>
-                ${escapeHtml(
-                    client.entreprise
-                )}
-            </p>
-
-            <div class="actions">
-
-                <button
-                    class="edit"
-                    onclick="editClient(${client.id})"
-                >
-                    Modifier
-                </button>
-
-                <button
-                    class="delete"
-                    onclick="deleteClient(${client.id})"
-                >
-                    Supprimer
-                </button>
-
-            </div>
-        `;
-
-        container.appendChild(card);
-    });
-}
-
-
-function searchClients() {
-
-    const value =
-        document
-            .getElementById("searchClient")
-            .value
-            .toLowerCase()
-            .trim();
-
-    if (!value) {
-
-        renderClients(clients);
-
-        return;
-    }
-
-    const result =
-        clients.filter(client => {
-
-            return (
-
-                String(
-                    client.nom || ""
-                )
-                .toLowerCase()
-                .includes(value)
-
-                ||
-
-                String(
-                    client.telephone || ""
-                )
-                .toLowerCase()
-                .includes(value)
-
-                ||
-
-                String(
-                    client.email || ""
-                )
-                .toLowerCase()
-                .includes(value)
-
-                ||
-
-                String(
-                    client.adresse || ""
-                )
-                .toLowerCase()
-                .includes(value)
-
-                ||
-
-                String(
-                    client.entreprise || ""
-                )
-                .toLowerCase()
-                .includes(value)
-            );
-        });
-
-    renderClients(result);
-}
-
-
-function openClientForm() {
-
-    document
-        .getElementById("clientModalTitle")
-        .textContent =
-        "Ajouter un client";
-
-    document
-        .getElementById("clientId")
-        .value = "";
-
-    document
-        .getElementById("clientNom")
-        .value = "";
-
-    document
-        .getElementById("clientTelephone")
-        .value = "";
-
-    document
-        .getElementById("clientEmail")
-        .value = "";
-
-    document
-        .getElementById("clientAdresse")
-        .value = "";
-
-    document
-        .getElementById("clientEntreprise")
-        .value = "";
-
-    document
-        .getElementById("clientMessage")
-        .textContent = "";
-
-    openModal("clientModal");
-}
-
-
-function editClient(id) {
-
-    const client =
-        clients.find(
-            item =>
-                Number(item.id) ===
-                Number(id)
-        );
-
-    if (!client) {
-
-        alert("Client introuvable.");
-
-        return;
-    }
-
-    document
-        .getElementById("clientModalTitle")
-        .textContent =
-        "Modifier un client";
-
-    document
-        .getElementById("clientId")
-        .value =
-        client.id;
-
-    document
-        .getElementById("clientNom")
-        .value =
-        client.nom || "";
-
-    document
-        .getElementById("clientTelephone")
-        .value =
-        client.telephone || "";
-
-    document
-        .getElementById("clientEmail")
-        .value =
-        client.email || "";
-
-    document
-        .getElementById("clientAdresse")
-        .value =
-        client.adresse || "";
-
-    document
-        .getElementById("clientEntreprise")
-        .value =
-        client.entreprise || "";
-
-    document
-        .getElementById("clientMessage")
-        .textContent = "";
-
-    openModal("clientModal");
-}
-
-
-async function saveClient() {
-
-    const id =
-        document
-            .getElementById("clientId")
-            .value;
-
-    const data = {
-
-        nom:
-            document
-                .getElementById("clientNom")
-                .value
-                .trim(),
-
-        telephone:
-            document
-                .getElementById("clientTelephone")
-                .value
-                .trim(),
-
-        email:
-            document
-                .getElementById("clientEmail")
-                .value
-                .trim(),
-
-        adresse:
-            document
-                .getElementById("clientAdresse")
-                .value
-                .trim(),
-
-        entreprise:
-            document
-                .getElementById("clientEntreprise")
-                .value
-                .trim()
-    };
-
-    const message =
-        document
-            .getElementById("clientMessage");
-
-    if (!data.nom) {
-
-        message.style.color =
-            "#dc2626";
-
-        message.textContent =
-            "Le nom est obligatoire.";
-
-        return;
-    }
 
     message.style.color =
         "#2563eb";
 
     message.textContent =
-        "Enregistrement...";
+        "Connexion en cours...";
 
-    let result;
 
-    if (id) {
+    const result =
+        await supabaseClient.auth
+            .signInWithPassword({
 
-        result =
-            await db
-                .from("clients")
-                .update(data)
-                .eq("id", id);
+                email:email,
+                password:password
 
-    } else {
+            });
 
-        result =
-            await db
-                .from("clients")
-                .insert(data);
-    }
 
-    if (result.error) {
+    if(result.error){
 
-        console.error(result.error);
+        console.error(
+            result.error
+        );
 
         message.style.color =
             "#dc2626";
@@ -600,39 +258,684 @@ async function saveClient() {
         return;
     }
 
-    closeModal("clientModal");
 
-    await loadClients();
+    message.style.color =
+        "#16a34a";
+
+    message.textContent =
+        "Connexion réussie";
+
+
+    showApplication();
+
 }
 
 
-async function deleteClient(id) {
+async function checkSession(){
 
-    if (
-        !confirm(
-            "Voulez-vous vraiment supprimer ce client ?"
-        )
-    ) {
+    const result =
+        await supabaseClient.auth
+            .getSession();
+
+
+    if(result.error){
+
+        console.error(
+            result.error
+        );
+
+        showLogin();
+
         return;
     }
 
-    const { error } =
-        await db
+
+    if(result.data.session){
+
+        showApplication();
+
+    }else{
+
+        showLogin();
+
+    }
+
+}
+
+
+function showLogin(){
+
+    document
+        .getElementById(
+            "loginPage"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+
+    document
+        .getElementById(
+            "app"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+}
+
+
+async function showApplication(){
+
+    document
+        .getElementById(
+            "loginPage"
+        )
+        .classList.add(
+            "hidden"
+        );
+
+
+    document
+        .getElementById(
+            "app"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+
+    await loadAll();
+
+}
+
+
+async function logout(){
+
+    await supabaseClient.auth.signOut();
+
+    showLogin();
+
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function showPage(name){
+
+    document
+        .querySelectorAll(
+            ".page"
+        )
+        .forEach(page => {
+
+            page.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    const page =
+        document.getElementById(
+            name
+        );
+
+
+    if(!page){
+        return;
+    }
+
+
+    page.classList.add(
+        "active"
+    );
+
+
+    if(name === "clients"){
+        loadClients();
+    }
+
+    if(name === "services"){
+        loadServices();
+    }
+
+    if(name === "factures"){
+        loadFactures();
+    }
+
+    if(name === "paiements"){
+        loadPaiements();
+    }
+
+}
+
+
+/* =========================
+   CHARGEMENT GENERAL
+========================= */
+
+async function loadAll(){
+
+    await loadClients();
+
+    await loadServices();
+
+    await loadFactures();
+
+    await loadPaiements();
+
+}
+
+
+/* =========================
+   CLIENTS
+========================= */
+
+async function loadClients(){
+
+    const result =
+        await supabaseClient
             .from("clients")
-            .delete()
-            .eq("id", id);
+            .select(
+                "id,nom,telephone,email,adresse,entreprise,created_at"
+            )
+            .order(
+                "created_at",
+                {
+                    ascending:false
+                }
+            );
 
-    if (error) {
 
-        alert(
-            "Impossible de supprimer le client :\n" +
-            error.message
+    if(result.error){
+
+        console.error(
+            "Clients:",
+            result.error
+        );
+
+        showError(
+            "clientsList",
+            result.error.message
         );
 
         return;
     }
 
+
+    clients =
+        result.data || [];
+
+
+    document
+        .getElementById(
+            "clientCount"
+        )
+        .textContent =
+        clients.length;
+
+
+    renderClients(
+        clients
+    );
+
+}
+
+
+function renderClients(list){
+
+    const container =
+        document.getElementById(
+            "clientsList"
+        );
+
+
+    container.innerHTML = "";
+
+
+    if(!list.length){
+
+        container.innerHTML =
+            '<div class="empty">' +
+            'Aucun client enregistré.' +
+            '</div>';
+
+        return;
+    }
+
+
+    list.forEach(client => {
+
+        const card =
+            document.createElement(
+                "div"
+            );
+
+
+        card.className =
+            "card";
+
+
+        card.innerHTML = `
+
+            <h3>
+                ${escapeHtml(client.nom)}
+            </h3>
+
+            <p>
+                <strong>Téléphone :</strong>
+                ${escapeHtml(client.telephone)}
+            </p>
+
+            <p>
+                <strong>E-mail :</strong>
+                ${escapeHtml(client.email)}
+            </p>
+
+            <p>
+                <strong>Adresse :</strong>
+                ${escapeHtml(client.adresse)}
+            </p>
+
+            <p>
+                <strong>Entreprise :</strong>
+                ${escapeHtml(client.entreprise)}
+            </p>
+
+            <div class="actions">
+
+                <button
+                    class="edit"
+                    data-edit-client="${client.id}"
+                >
+                    Modifier
+                </button>
+
+                <button
+                    class="delete"
+                    data-delete-client="${client.id}"
+                >
+                    Supprimer
+                </button>
+
+            </div>
+        `;
+
+
+        card
+            .querySelector(
+                "[data-edit-client]"
+            )
+            .addEventListener(
+                "click",
+                () => editClient(client.id)
+            );
+
+
+        card
+            .querySelector(
+                "[data-delete-client]"
+            )
+            .addEventListener(
+                "click",
+                () => deleteClient(client.id)
+            );
+
+
+        container.appendChild(
+            card
+        );
+
+    });
+
+}
+
+
+function searchClients(){
+
+    const value =
+        document
+            .getElementById(
+                "clientSearch"
+            )
+            .value
+            .toLowerCase()
+            .trim();
+
+
+    if(!value){
+
+        renderClients(
+            clients
+        );
+
+        return;
+    }
+
+
+    const result =
+        clients.filter(client => {
+
+            return [
+
+                client.nom,
+
+                client.telephone,
+
+                client.email,
+
+                client.adresse,
+
+                client.entreprise
+
+            ]
+            .join(" ")
+            .toLowerCase()
+            .includes(value);
+
+        });
+
+
+    renderClients(
+        result
+    );
+
+}
+
+
+function openClientForm(){
+
+    document
+        .getElementById(
+            "clientModalTitle"
+        )
+        .textContent =
+        "Ajouter un client";
+
+
+    document
+        .getElementById(
+            "clientId"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "clientNom"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "clientTelephone"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "clientEmail"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "clientAdresse"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "clientEntreprise"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "clientFormMessage"
+        )
+        .textContent = "";
+
+
+    openModal(
+        "clientModal"
+    );
+
+}
+
+
+function editClient(id){
+
+    const client =
+        clients.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+
+    if(!client){
+
+        alert(
+            "Client introuvable."
+        );
+
+        return;
+    }
+
+
+    document
+        .getElementById(
+            "clientModalTitle"
+        )
+        .textContent =
+        "Modifier un client";
+
+
+    document
+        .getElementById(
+            "clientId"
+        )
+        .value =
+        client.id;
+
+
+    document
+        .getElementById(
+            "clientNom"
+        )
+        .value =
+        client.nom || "";
+
+
+    document
+        .getElementById(
+            "clientTelephone"
+        )
+        .value =
+        client.telephone || "";
+
+
+    document
+        .getElementById(
+            "clientEmail"
+        )
+        .value =
+        client.email || "";
+
+
+    document
+        .getElementById(
+            "clientAdresse"
+        )
+        .value =
+        client.adresse || "";
+
+
+    document
+        .getElementById(
+            "clientEntreprise"
+        )
+        .value =
+        client.entreprise || "";
+
+
+    openModal(
+        "clientModal"
+    );
+
+}
+
+
+async function saveClient(){
+
+    const id =
+        document
+            .getElementById(
+                "clientId"
+            )
+            .value;
+
+
+    const data = {
+
+        nom:
+            document
+                .getElementById(
+                    "clientNom"
+                )
+                .value
+                .trim(),
+
+        telephone:
+            document
+                .getElementById(
+                    "clientTelephone"
+                )
+                .value
+                .trim(),
+
+        email:
+            document
+                .getElementById(
+                    "clientEmail"
+                )
+                .value
+                .trim(),
+
+        adresse:
+            document
+                .getElementById(
+                    "clientAdresse"
+                )
+                .value
+                .trim(),
+
+        entreprise:
+            document
+                .getElementById(
+                    "clientEntreprise"
+                )
+                .value
+                .trim()
+
+    };
+
+
+    const message =
+        document
+            .getElementById(
+                "clientFormMessage"
+            );
+
+
+    message.textContent =
+        "Enregistrement...";
+
+
+    let result;
+
+
+    if(id){
+
+        result =
+            await supabaseClient
+                .from("clients")
+                .update(data)
+                .eq("id",id);
+
+    }else{
+
+        result =
+            await supabaseClient
+                .from("clients")
+                .insert(data);
+
+    }
+
+
+    if(result.error){
+
+        message.style.color =
+            "#dc2626";
+
+        message.textContent =
+            "Erreur : " +
+            result.error.message;
+
+        return;
+    }
+
+
+    closeModal(
+        "clientModal"
+    );
+
+
     await loadClients();
+
+}
+
+
+async function deleteClient(id){
+
+    if(
+        !confirm(
+            "Supprimer ce client ?"
+        )
+    ){
+        return;
+    }
+
+
+    const result =
+        await supabaseClient
+            .from("clients")
+            .delete()
+            .eq("id",id);
+
+
+    if(result.error){
+
+        alert(
+            "Erreur : " +
+            result.error.message
+        );
+
+        return;
+    }
+
+
+    await loadClients();
+
 }
 
 
@@ -640,177 +943,225 @@ async function deleteClient(id) {
    SERVICES
 ========================= */
 
-async function loadServices() {
+async function loadServices(){
 
-    const { data, error } =
-        await db
+    const result =
+        await supabaseClient
             .from("services")
-            .select("*")
+            .select(
+                "id,nom,description,prix,created_at"
+            )
             .order(
                 "created_at",
-                { ascending: false }
+                {
+                    ascending:false
+                }
             );
 
-    if (error) {
+
+    if(result.error){
 
         console.error(
-            "Erreur services :",
-            error
+            "Services:",
+            result.error
         );
 
         showError(
             "servicesList",
-            error.message
+            result.error.message
         );
 
         return;
     }
 
-    services = data || [];
+
+    services =
+        result.data || [];
+
 
     document
-        .getElementById("serviceCount")
+        .getElementById(
+            "serviceCount"
+        )
         .textContent =
         services.length;
 
+
     renderServices();
+
 }
 
 
-function renderServices() {
+function renderServices(){
 
     const container =
-        document
-            .getElementById("servicesList");
+        document.getElementById(
+            "servicesList"
+        );
+
 
     container.innerHTML = "";
 
-    if (!services.length) {
+
+    if(!services.length){
 
         container.innerHTML =
-            `<div class="empty">
-                Aucun service enregistré.
-            </div>`;
+            '<div class="empty">' +
+            'Aucun service enregistré.' +
+            '</div>';
 
         return;
     }
+
 
     services.forEach(service => {
 
         const card =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        card.className = "card";
+
+        card.className =
+            "card";
+
 
         card.innerHTML = `
 
             <h3>
-                ${escapeHtml(
-                    service.nom
-                )}
+                ${escapeHtml(service.nom)}
             </h3>
 
             <p>
-                ${escapeHtml(
-                    service.description
-                )}
+                ${escapeHtml(service.description)}
             </p>
 
             <p>
                 <strong>Prix :</strong>
-                ${escapeHtml(
-                    service.prix
-                )}
+                ${escapeHtml(service.prix)}
             </p>
+
         `;
 
-        container.appendChild(card);
+
+        container.appendChild(
+            card
+        );
+
     });
+
 }
 
 
-function openServiceForm() {
+function openServiceForm(){
 
     document
-        .getElementById("serviceNom")
+        .getElementById(
+            "serviceNom"
+        )
         .value = "";
 
-    document
-        .getElementById("serviceDescription")
-        .value = "";
 
     document
-        .getElementById("servicePrix")
+        .getElementById(
+            "serviceDescription"
+        )
         .value = "";
 
+
     document
-        .getElementById("serviceMessage")
+        .getElementById(
+            "servicePrix"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "serviceFormMessage"
+        )
         .textContent = "";
 
-    openModal("serviceModal");
+
+    openModal(
+        "serviceModal"
+    );
+
 }
 
 
-async function saveService() {
+async function saveService(){
 
     const nom =
         document
-            .getElementById("serviceNom")
+            .getElementById(
+                "serviceNom"
+            )
             .value
             .trim();
+
 
     const description =
         document
-            .getElementById("serviceDescription")
+            .getElementById(
+                "serviceDescription"
+            )
             .value
             .trim();
 
+
     const prix =
-        Number(
-            document
-                .getElementById("servicePrix")
-                .value || 0
-        );
+        document
+            .getElementById(
+                "servicePrix"
+            )
+            .value;
+
 
     const message =
         document
-            .getElementById("serviceMessage");
+            .getElementById(
+                "serviceFormMessage"
+            );
 
-    if (!nom) {
 
-        message.style.color =
-            "#dc2626";
-
-        message.textContent =
-            "Le nom du service est obligatoire.";
-
-        return;
-    }
-
-    const { error } =
-        await db
+    const result =
+        await supabaseClient
             .from("services")
             .insert({
-                nom,
-                description,
-                prix
+
+                nom:nom,
+
+                description:description,
+
+                prix:
+                    prix === ""
+                    ? null
+                    : Number(prix)
+
             });
 
-    if (error) {
+
+    if(result.error){
 
         message.style.color =
             "#dc2626";
 
         message.textContent =
             "Erreur : " +
-            error.message;
+            result.error.message;
 
         return;
     }
 
-    closeModal("serviceModal");
+
+    closeModal(
+        "serviceModal"
+    );
+
 
     await loadServices();
+
 }
 
 
@@ -818,233 +1169,322 @@ async function saveService() {
    FACTURES
 ========================= */
 
-async function loadFactures() {
+async function loadFactures(){
 
-    const { data, error } =
-        await db
+    const result =
+        await supabaseClient
             .from("factures")
-            .select("*")
+            .select(
+                "id,client_id,numero,montant,statut,date_facture,date_echeance,created_at"
+            )
             .order(
                 "created_at",
-                { ascending: false }
+                {
+                    ascending:false
+                }
             );
 
-    if (error) {
+
+    if(result.error){
 
         console.error(
-            "Erreur factures :",
-            error
+            "Factures:",
+            result.error
         );
 
         showError(
             "facturesList",
-            error.message
+            result.error.message
         );
 
         return;
     }
 
-    factures = data || [];
+
+    factures =
+        result.data || [];
+
 
     document
-        .getElementById("factureCount")
+        .getElementById(
+            "factureCount"
+        )
         .textContent =
         factures.length;
 
+
     renderFactures();
+
 }
 
 
-function renderFactures() {
+function renderFactures(){
 
     const container =
-        document
-            .getElementById("facturesList");
+        document.getElementById(
+            "facturesList"
+        );
+
 
     container.innerHTML = "";
 
-    if (!factures.length) {
+
+    if(!factures.length){
 
         container.innerHTML =
-            `<div class="empty">
-                Aucune facture enregistrée.
-            </div>`;
+            '<div class="empty">' +
+            'Aucune facture enregistrée.' +
+            '</div>';
 
         return;
     }
 
+
     factures.forEach(facture => {
 
         const card =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        card.className = "card";
+
+        card.className =
+            "card";
+
 
         card.innerHTML = `
 
             <h3>
                 Facture
-                ${escapeHtml(
-                    facture.numero
-                )}
+                ${escapeHtml(facture.numero)}
             </h3>
 
             <p>
-                <strong>Client ID :</strong>
-                ${escapeHtml(
-                    facture.client_id
-                )}
+                <strong>Client :</strong>
+                ${escapeHtml(facture.client_id)}
             </p>
 
             <p>
                 <strong>Montant :</strong>
-                ${escapeHtml(
-                    facture.montant
-                )}
+                ${escapeHtml(facture.montant)}
             </p>
 
             <p>
                 <strong>Statut :</strong>
-                ${escapeHtml(
-                    facture.statut
-                )}
+                ${escapeHtml(facture.statut)}
             </p>
 
             <p>
                 <strong>Date :</strong>
-                ${escapeHtml(
-                    facture.date_facture
-                )}
+                ${escapeHtml(facture.date_facture)}
             </p>
 
             <p>
                 <strong>Échéance :</strong>
-                ${escapeHtml(
-                    facture.date_echeance
-                )}
+                ${escapeHtml(facture.date_echeance)}
             </p>
+
         `;
 
-        container.appendChild(card);
+
+        container.appendChild(
+            card
+        );
+
     });
+
 }
 
 
-function openFactureForm() {
+function openFactureForm(){
 
-    fillClientSelect(
-        "factureClient"
-    );
+    const select =
+        document.getElementById(
+            "factureClient"
+        );
+
+
+    select.innerHTML = "";
+
+
+    clients.forEach(client => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            client.id;
+
+
+        option.textContent =
+            client.nom;
+
+
+        select.appendChild(
+            option
+        );
+
+    });
+
 
     document
-        .getElementById("factureNumero")
+        .getElementById(
+            "factureNumero"
+        )
         .value = "";
 
-    document
-        .getElementById("factureMontant")
-        .value = "";
 
     document
-        .getElementById("factureStatut")
+        .getElementById(
+            "factureMontant"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "factureStatut"
+        )
         .value =
         "En attente";
 
+
     document
-        .getElementById("factureDate")
+        .getElementById(
+            "factureDate"
+        )
         .value =
         today();
 
+
     document
-        .getElementById("factureEcheance")
+        .getElementById(
+            "factureEcheance"
+        )
         .value = "";
 
+
     document
-        .getElementById("factureMessage")
+        .getElementById(
+            "factureFormMessage"
+        )
         .textContent = "";
 
-    openModal("factureModal");
+
+    openModal(
+        "factureModal"
+    );
+
 }
 
 
-async function saveFacture() {
+async function saveFacture(){
 
     const clientId =
         document
-            .getElementById("factureClient")
+            .getElementById(
+                "factureClient"
+            )
             .value;
+
 
     const numero =
         document
-            .getElementById("factureNumero")
+            .getElementById(
+                "factureNumero"
+            )
             .value
             .trim();
 
+
     const montant =
-        Number(
-            document
-                .getElementById("factureMontant")
-                .value || 0
-        );
+        document
+            .getElementById(
+                "factureMontant"
+            )
+            .value;
+
 
     const statut =
         document
-            .getElementById("factureStatut")
+            .getElementById(
+                "factureStatut"
+            )
             .value;
+
 
     const dateFacture =
         document
-            .getElementById("factureDate")
+            .getElementById(
+                "factureDate"
+            )
             .value;
+
 
     const dateEcheance =
         document
-            .getElementById("factureEcheance")
+            .getElementById(
+                "factureEcheance"
+            )
             .value;
+
 
     const message =
         document
-            .getElementById("factureMessage");
+            .getElementById(
+                "factureFormMessage"
+            );
 
-    if (!clientId || !numero) {
 
-        message.style.color =
-            "#dc2626";
-
-        message.textContent =
-            "Client et numéro obligatoires.";
-
-        return;
-    }
-
-    const { error } =
-        await db
+    const result =
+        await supabaseClient
             .from("factures")
             .insert({
-                client_id: Number(clientId),
-                numero,
-                montant,
-                statut,
+
+                client_id:
+                    Number(clientId),
+
+                numero:numero,
+
+                montant:
+                    montant === ""
+                    ? null
+                    : Number(montant),
+
+                statut:statut,
+
                 date_facture:
                     dateFacture || null,
+
                 date_echeance:
                     dateEcheance || null
+
             });
 
-    if (error) {
+
+    if(result.error){
 
         message.style.color =
             "#dc2626";
 
         message.textContent =
             "Erreur : " +
-            error.message;
+            result.error.message;
 
         return;
     }
 
-    closeModal("factureModal");
+
+    closeModal(
+        "factureModal"
+    );
+
 
     await loadFactures();
+
 }
 
 
@@ -1052,311 +1492,328 @@ async function saveFacture() {
    PAIEMENTS
 ========================= */
 
-async function loadPaiements() {
+async function loadPaiements(){
 
-    const { data, error } =
-        await db
+    const result =
+        await supabaseClient
             .from("paiements")
-            .select("*")
+            .select(
+                "id,facture_id,client_id,montant,date_paiement,reference,created_at"
+            )
             .order(
                 "created_at",
-                { ascending: false }
+                {
+                    ascending:false
+                }
             );
 
-    if (error) {
+
+    if(result.error){
 
         console.error(
-            "Erreur paiements :",
-            error
+            "Paiements:",
+            result.error
         );
 
         showError(
             "paiementsList",
-            error.message
+            result.error.message
         );
 
         return;
     }
 
-    paiements = data || [];
+
+    paiements =
+        result.data || [];
+
 
     document
-        .getElementById("paiementCount")
+        .getElementById(
+            "paiementCount"
+        )
         .textContent =
         paiements.length;
 
+
     renderPaiements();
+
 }
 
 
-function renderPaiements() {
+function renderPaiements(){
 
     const container =
-        document
-            .getElementById("paiementsList");
+        document.getElementById(
+            "paiementsList"
+        );
+
 
     container.innerHTML = "";
 
-    if (!paiements.length) {
+
+    if(!paiements.length){
 
         container.innerHTML =
-            `<div class="empty">
-                Aucun paiement enregistré.
-            </div>`;
+            '<div class="empty">' +
+            'Aucun paiement enregistré.' +
+            '</div>';
 
         return;
     }
+
 
     paiements.forEach(paiement => {
 
         const card =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        card.className = "card";
+
+        card.className =
+            "card";
+
 
         card.innerHTML = `
 
-            <h3>Paiement</h3>
+            <h3>
+                Paiement
+            </h3>
 
             <p>
-                <strong>Facture ID :</strong>
-                ${escapeHtml(
-                    paiement.facture_id
-                )}
+                <strong>Facture :</strong>
+                ${escapeHtml(paiement.facture_id)}
             </p>
 
             <p>
-                <strong>Client ID :</strong>
-                ${escapeHtml(
-                    paiement.client_id
-                )}
+                <strong>Client :</strong>
+                ${escapeHtml(paiement.client_id)}
             </p>
 
             <p>
                 <strong>Montant :</strong>
-                ${escapeHtml(
-                    paiement.montant
-                )}
+                ${escapeHtml(paiement.montant)}
             </p>
 
             <p>
                 <strong>Date :</strong>
-                ${escapeHtml(
-                    paiement.date_paiement
-                )}
+                ${escapeHtml(paiement.date_paiement)}
             </p>
 
             <p>
                 <strong>Référence :</strong>
-                ${escapeHtml(
-                    paiement.reference
-                )}
+                ${escapeHtml(paiement.reference)}
             </p>
+
         `;
 
-        container.appendChild(card);
+
+        container.appendChild(
+            card
+        );
+
     });
+
 }
 
 
-function openPaiementForm() {
+function openPaiementForm(){
 
-    fillClientSelect(
-        "paiementClient"
-    );
+    const clientSelect =
+        document.getElementById(
+            "paiementClient"
+        );
 
-    fillFactureSelect();
+
+    clientSelect.innerHTML = "";
+
+
+    clients.forEach(client => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            client.id;
+
+
+        option.textContent =
+            client.nom;
+
+
+        clientSelect.appendChild(
+            option
+        );
+
+    });
+
+
+    const factureSelect =
+        document.getElementById(
+            "paiementFacture"
+        );
+
+
+    factureSelect.innerHTML = "";
+
+
+    factures.forEach(facture => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            facture.id;
+
+
+        option.textContent =
+            facture.numero;
+
+
+        factureSelect.appendChild(
+            option
+        );
+
+    });
+
 
     document
-        .getElementById("paiementMontant")
+        .getElementById(
+            "paiementMontant"
+        )
         .value = "";
 
+
     document
-        .getElementById("paiementDate")
+        .getElementById(
+            "paiementDate"
+        )
         .value =
         today();
 
-    document
-        .getElementById("paiementMode")
-        .value =
-        "Espèces";
 
     document
-        .getElementById("paiementReference")
+        .getElementById(
+            "paiementReference"
+        )
         .value = "";
 
+
     document
-        .getElementById("paiementMessage")
+        .getElementById(
+            "paiementFormMessage"
+        )
         .textContent = "";
 
-    openModal("paiementModal");
+
+    openModal(
+        "paiementModal"
+    );
+
 }
 
 
-async function savePaiement() {
+async function savePaiement(){
 
     const factureId =
         document
-            .getElementById("paiementFacture")
+            .getElementById(
+                "paiementFacture"
+            )
             .value;
+
 
     const clientId =
         document
-            .getElementById("paiementClient")
+            .getElementById(
+                "paiementClient"
+            )
             .value;
 
+
     const montant =
-        Number(
-            document
-                .getElementById("paiementMontant")
-                .value || 0
-        );
+        document
+            .getElementById(
+                "paiementMontant"
+            )
+            .value;
+
 
     const datePaiement =
         document
-            .getElementById("paiementDate")
+            .getElementById(
+                "paiementDate"
+            )
             .value;
 
-    const mode =
-        document
-            .getElementById("paiementMode")
-            .value;
 
     const reference =
         document
-            .getElementById("paiementReference")
+            .getElementById(
+                "paiementReference"
+            )
             .value
             .trim();
 
+
     const message =
         document
-            .getElementById("paiementMessage");
+            .getElementById(
+                "paiementFormMessage"
+            );
 
-    if (!factureId || !clientId) {
 
-        message.style.color =
-            "#dc2626";
-
-        message.textContent =
-            "Le client et la facture sont obligatoires.";
-
-        return;
-    }
-
-    const { error } =
-        await db
+    const result =
+        await supabaseClient
             .from("paiements")
             .insert({
+
                 facture_id:
                     Number(factureId),
 
                 client_id:
                     Number(clientId),
 
-                montant,
+                montant:
+                    montant === ""
+                    ? null
+                    : Number(montant),
 
                 date_paiement:
                     datePaiement || null,
 
-                mode_paiement:
-                    mode,
+                reference:reference
 
-                reference
             });
 
-    if (error) {
+
+    if(result.error){
 
         message.style.color =
             "#dc2626";
 
         message.textContent =
             "Erreur : " +
-            error.message;
+            result.error.message;
 
         return;
     }
 
-    closeModal("paiementModal");
+
+    closeModal(
+        "paiementModal"
+    );
+
 
     await loadPaiements();
-}
 
-
-/* =========================
-   LISTES
-========================= */
-
-function fillClientSelect(id) {
-
-    const select =
-        document.getElementById(id);
-
-    select.innerHTML = "";
-
-    clients.forEach(client => {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            client.id;
-
-        option.textContent =
-            client.nom;
-
-        select.appendChild(option);
-    });
-
-    if (!clients.length) {
-
-        const option =
-            document.createElement("option");
-
-        option.value = "";
-
-        option.textContent =
-            "Aucun client";
-
-        select.appendChild(option);
-    }
-}
-
-
-function fillFactureSelect() {
-
-    const select =
-        document.getElementById(
-            "paiementFacture"
-        );
-
-    select.innerHTML = "";
-
-    factures.forEach(facture => {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            facture.id;
-
-        option.textContent =
-            `${facture.numero} - ${facture.montant}`;
-
-        select.appendChild(option);
-    });
-
-    if (!factures.length) {
-
-        const option =
-            document.createElement("option");
-
-        option.value = "";
-
-        option.textContent =
-            "Aucune facture";
-
-        select.appendChild(option);
-    }
 }
 
 
@@ -1364,25 +1821,25 @@ function fillFactureSelect() {
    MODALES
 ========================= */
 
-function openModal(id) {
+function openModal(id){
 
-    const modal =
-        document.getElementById(id);
+    document
+        .getElementById(id)
+        .classList.add(
+            "active"
+        );
 
-    if (modal) {
-        modal.classList.add("active");
-    }
 }
 
 
-function closeModal(id) {
+function closeModal(id){
 
-    const modal =
-        document.getElementById(id);
+    document
+        .getElementById(id)
+        .classList.remove(
+            "active"
+        );
 
-    if (modal) {
-        modal.classList.remove("active");
-    }
 }
 
 
@@ -1390,50 +1847,68 @@ function closeModal(id) {
    OUTILS
 ========================= */
 
-function today() {
+function today(){
 
     return new Date()
         .toISOString()
-        .slice(0, 10);
+        .substring(
+            0,
+            10
+        );
+
 }
 
 
-function showError(id, message) {
+function showError(
+    elementId,
+    message
+){
 
     const element =
-        document.getElementById(id);
+        document.getElementById(
+            elementId
+        );
 
-    if (!element) return;
+
+    if(!element){
+        return;
+    }
+
 
     element.innerHTML =
-        `<div class="empty">
-            Erreur : ${escapeHtml(message)}
-        </div>`;
+        '<div class="empty">' +
+        'Erreur : ' +
+        escapeHtml(message) +
+        '</div>';
+
 }
 
 
-function escapeHtml(value) {
+function escapeHtml(value){
 
-    return String(value ?? "")
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
 }
 ```
